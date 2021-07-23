@@ -2,7 +2,7 @@
 import { crocks, R } from "./deps.js";
 
 const { Async, tryCatch, resultToAsync } = crocks;
-const { add, equals, omit } = R;
+const { add, assoc, equals } = R;
 /**
  *
  * @typedef {Object} CreateDocumentArgs
@@ -117,7 +117,7 @@ export function adapter(client) {
       //.map(v => (console.log('result', v), v))
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
-        (doc) => ({ id, ...omit(["_id"], doc) }),
+        (doc) => doc,
       )
       .toPromise();
   }
@@ -166,7 +166,19 @@ export function adapter(client) {
    * @param {QueryDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function queryDocuments({ db, query }) {}
+  async function queryDocuments({ db, query }) {
+    try {
+      let options = {};
+      options = query.limit ? assoc("limit", query.limit, options) : options;
+
+      const m = client.database(db).collection(db);
+      const docs = await m.find(query.selector, options).toArray();
+
+      return { ok: true, docs };
+    } catch (e) {
+      return { ok: false, msg: e.message };
+    }
+  }
 
   /**
    *
@@ -183,7 +195,25 @@ export function adapter(client) {
    */
   async function listDocuments(
     { db, limit, startkey, endkey, keys, descending },
-  ) {}
+  ) {
+    try {
+      let q = {};
+      q = startkey ? assoc("_id", { $gte: startkey }, q) : q;
+      q = endkey ? assoc("_id", { $lte: endkey }, q) : q;
+      q = keys ? assoc("_id", { $in: keys }, q) : q;
+
+      let options = {};
+      options = limit ? assoc("limit", limit, options) : options;
+      options = descending ? assoc("sort", [["_id", 1]], options) : options;
+
+      const m = client.database(db).collection(db);
+      const docs = await m.find(q, options).toArray();
+
+      return { ok: true, docs };
+    } catch (e) {
+      return { ok: false, msg: e.message };
+    }
+  }
 
   /**
    *

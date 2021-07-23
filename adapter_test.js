@@ -45,7 +45,7 @@ test("get document", async () => {
     db: "hyper~movies",
     id: "3-groundhog-day",
   });
-  assertEquals(doc.id, "3-groundhog-day");
+  assertEquals(doc._id, "3-groundhog-day");
   assertEquals(doc.title, "Groundhog Day");
   // cleanup
   await a.removeDocument({ db: "hyper~movies", id: "3-groundhog-day" });
@@ -70,11 +70,68 @@ test("update document", async () => {
 
   assert(result.ok);
 
-  /*
-  assertEquals(doc.id, '5-caddyshack')
-  assertEquals(doc.year, '1979')
-  assertEquals(doc.genre[1], 'sports')
-  */
   // cleanup
   await a.removeDocument({ db: "hyper~movies", id: "5-caddyshack" });
+});
+
+test("query documents", async () => {
+  // setup
+
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "10-caddyshack",
+    doc: { title: "Caddyshack", year: "1978", genre: ["comedy"] },
+  });
+
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "12-ghostbusters",
+    doc: { title: "Ghostbusters", year: "1980", genre: ["comedy"] },
+  });
+
+  // query document
+
+  const result = await a.queryDocuments({
+    db: "hyper~movies",
+    query: {
+      selector: { year: { $gt: "1979" } },
+    },
+  });
+
+  assert(result.ok);
+
+  // cleanup
+  await a.removeDocument({ db: "hyper~movies", id: "10-caddyshack" });
+  await a.removeDocument({ db: "hyper~movies", id: "12-ghostbusters" });
+});
+
+test("list documents", async () => {
+  // setup
+
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "20-caddyshack",
+    doc: { title: "Caddyshack", year: "1978", genre: ["comedy"] },
+  });
+
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "22-ghostbusters",
+    doc: { title: "Ghostbusters", year: "1980", genre: ["comedy"] },
+  });
+
+  // query document
+
+  const result = await a.listDocuments({
+    db: "hyper~movies",
+    limit: 2,
+    startkey: "20",
+  });
+
+  assert(result.ok);
+  assertEquals(result.docs.length, 2);
+
+  // cleanup
+  await a.removeDocument({ db: "hyper~movies", id: "20-caddyshack" });
+  await a.removeDocument({ db: "hyper~movies", id: "22-ghostbusters" });
 });
