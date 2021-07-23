@@ -1,6 +1,9 @@
 image:
   file: .gitpod.Dockerfile
 
+tasks:
+  - command: mkdir -p /workspace/data && mongod --dbpath /workspace/data
+
 github:
   prebuilds:
     # enable for the default branch (defaults to true)
