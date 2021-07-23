@@ -1,5 +1,7 @@
 // deno-lint-ignore-file no-unused-vars
+import { crocks } from './deps.js'
 
+const { tryCatch, resultToAsync } = crocks
 /**
  *
  * @typedef {Object} CreateDocumentArgs
@@ -42,48 +44,59 @@
  * @property {boolean} ok
  */
 
-export default function (_env) {
+export function adapter(client) {
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function createDatabase(name) {}
+  async function createDatabase(name) {
+    const result = tryCatch((name) => {
+      client.database(name).collection(name)
+    })
+
+    return resultToAsync(result(name))
+      .bimap(
+        e => ({ ok: false, msg: e.message }),
+        () => ({ ok: true })
+      )
+      .toPromise()
+  }
 
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function removeDatabase(name) {}
+  async function removeDatabase(name) { }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function createDocument({ db, id, doc }) {}
+  async function createDocument({ db, id, doc }) { }
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function retrieveDocument({ db, id }) {}
+  async function retrieveDocument({ db, id }) { }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function updateDocument({ db, id, doc }) {}
+  async function updateDocument({ db, id, doc }) { }
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function removeDocument({ db, id }) {}
+  async function removeDocument({ db, id }) { }
 
   /**
    * @param {QueryDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function queryDocuments({ db, query }) {}
+  async function queryDocuments({ db, query }) { }
 
   /**
    *
@@ -91,7 +104,7 @@ export default function (_env) {
    * @returns {Promise<Response>}
    */
 
-  async function indexDocuments({ db, name, fields }) {}
+  async function indexDocuments({ db, name, fields }) { }
 
   /**
    *
@@ -100,14 +113,14 @@ export default function (_env) {
    */
   async function listDocuments(
     { db, limit, startkey, endkey, keys, descending },
-  ) {}
+  ) { }
 
   /**
    *
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) {}
+  async function bulkDocuments({ db, docs }) { }
 
   return Object.freeze({
     createDatabase,
