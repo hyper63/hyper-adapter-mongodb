@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-unused-vars
 import { crocks } from './deps.js'
 
-const { tryCatch, resultToAsync } = crocks
+const { Async, tryCatch, resultToAsync } = crocks
 /**
  *
  * @typedef {Object} CreateDocumentArgs
@@ -66,13 +66,42 @@ export function adapter(client) {
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function removeDatabase(name) { }
+  async function removeDatabase(name) {
+    /*
+    const db = tryCatch(() =>
+      client.database(name).collection(name)
+    )
+    return resultToAsync(db(name))
+      .chain(db => Async.fromPromise(db.drop)())
+      .bimap(
+        e => ({ ok: false, msg: e.message }),
+        x => {
+          console.log('x', x)
+          return ({ ok: true })
+        }
+      )
+      .toPromise()
+      */
+    return Promise.resolve({ ok: true, msg: 'Feature not implemented!' })
+  }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function createDocument({ db, id, doc }) { }
+  async function createDocument({ db, id, doc }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db))
+    return resultToAsync(getDb(db))
+      .chain(db => Async.fromPromise(db.insertOne.bind(db))({
+        _id: id,
+        ...doc
+      }))
+      .bimap(
+        e => ({ ok: false, msg: e.message }),
+        id => ({ ok: true, id })
+      )
+      .toPromise()
+  }
 
   /**
    * @param {RetrieveDocumentArgs}
@@ -90,7 +119,18 @@ export function adapter(client) {
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function removeDocument({ db, id }) { }
+  async function removeDocument({ db, id }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db))
+    return resultToAsync(getDb(db))
+      .chain(db => Async.fromPromise(db.deleteOne.bind(db))({
+        _id: id
+      }))
+      .bimap(
+        e => ({ ok: false, msg: e.message }),
+        _ => ({ ok: true, msg: _ })
+      )
+      .toPromise()
+  }
 
   /**
    * @param {QueryDocumentsArgs}
