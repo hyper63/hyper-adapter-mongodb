@@ -21,7 +21,9 @@
 
 ## Background
 
-mongodb is a NoSQL database that is very popular in the developer ecosystem. With this adapter, you will be able to use mongodb as your data store for your hyper applications.
+mongodb is a NoSQL database that is very popular in the developer ecosystem.
+With this adapter, you will be able to use mongodb as your data store for your
+hyper applications.
 
 For more information on MongoDB: https://www.mongodb.com/
 
@@ -29,35 +31,35 @@ For more information on MongoDB: https://www.mongodb.com/
 
 create `hyper.config.js`
 
-``` js
-import { default as mongo } from 'https://x.nest.land/hyper-adapter-mongodb@0.0.1/mod.js';
+```js
+import { default as mongo } from "https://x.nest.land/hyper-adapter-mongodb@0.0.1/mod.js";
 
-const connectionString = Deno.env.get('MONGODB_URL')
+const connectionString = Deno.env.get("MONGODB_URL");
 
 export default {
   app: opine,
   adapter: [
     {
-      port: 'data', plugins: [mongo(connectionString)]
-    }
-  ]
-}
-
+      port: "data",
+      plugins: [mongo(connectionString)],
+    },
+  ],
+};
 ```
 
 create `mod.js`
 
-``` js
-import core from 'https://x.nest.land/hyper@1.3.12/mod.js'
-import config from './hyper.config.js'
+```js
+import core from "https://x.nest.land/hyper@1.3.12/mod.js";
+import config from "./hyper.config.js";
 
-core(config)
-
+core(config);
 ```
 
 ## Installation
 
-This is a Deno module available to import from [nest.land](https://nest.land/package/hyper-adapter-mongodb)
+This is a Deno module available to import from
+[nest.land](https://nest.land/package/hyper-adapter-mongodb)
 
 deps.js
 
@@ -69,10 +71,10 @@ export { default as mongodb } from "https://x.nest.land/hyper-adapter-mongodb@0.
 
 - Create a `MongoDb` database
 - Remove a `MongoDb` database
-- Create a document 
-- Retrieve a document 
-- Update a document 
-- Remove a document 
+- Create a document
+- Retrieve a document
+- Update a document
+- Remove a document
 - List documents
 - Query documents
 - Index documents
@@ -80,13 +82,15 @@ export { default as mongodb } from "https://x.nest.land/hyper-adapter-mongodb@0.
 
 ## Methods
 
-This adapter fully implements the Data port and can be used as the [hyper Data Service](https://docs.hyper.io/data-api) adapter
+This adapter fully implements the Data port and can be used as the
+[hyper Data Service](https://docs.hyper.io/data-api) adapter
 
 See the full port [here](https://nest.land/packages/hyper-port-data)
 
 ## Contributing
 
-Contributions are welcome! See the hyper [contribution guide](https://docs.hyper.io/contributing-to-hyper)
+Contributions are welcome! See the hyper
+[contribution guide](https://docs.hyper.io/contributing-to-hyper)
 
 ## Testing
 

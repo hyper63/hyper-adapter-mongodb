@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-unused-vars
-import { crocks, R } from './deps.js'
+import { crocks, R } from "./deps.js";
 
-const { Async, tryCatch, resultToAsync } = crocks
-const { add, equals, omit } = R
+const { Async, tryCatch, resultToAsync } = crocks;
+const { add, equals, omit } = R;
 /**
  *
  * @typedef {Object} CreateDocumentArgs
@@ -50,24 +50,24 @@ export function adapter(client) {
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function createDatabase(name) {
+  function createDatabase(name) {
     const result = tryCatch((name) => {
-      client.database(name).collection(name)
-    })
+      client.database(name).collection(name);
+    });
 
     return resultToAsync(result(name))
       .bimap(
-        e => ({ ok: false, msg: e.message }),
-        () => ({ ok: true })
+        (e) => ({ ok: false, msg: e.message }),
+        () => ({ ok: true }),
       )
-      .toPromise()
+      .toPromise();
   }
 
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
-  async function removeDatabase(name) {
+  function removeDatabase(name) {
     /*
     const db = tryCatch(() =>
       client.database(name).collection(name)
@@ -83,82 +83,90 @@ export function adapter(client) {
       )
       .toPromise()
       */
-    return Promise.resolve({ ok: true, msg: 'Feature not implemented!' })
+    return Promise.resolve({ ok: true, msg: "Feature not implemented!" });
   }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function createDocument({ db, id, doc }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db))
+  function createDocument({ db, id, doc }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
-      .chain(db => Async.fromPromise(db.insertOne.bind(db))({
-        _id: id,
-        ...doc
-      }))
-      .bimap(
-        e => ({ ok: false, msg: e.message }),
-        id => ({ ok: true, id })
+      .chain((db) =>
+        Async.fromPromise(db.insertOne.bind(db))({
+          _id: id,
+          ...doc,
+        })
       )
-      .toPromise()
+      .bimap(
+        (e) => ({ ok: false, msg: e.message }),
+        (id) => ({ ok: true, id }),
+      )
+      .toPromise();
   }
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function retrieveDocument({ db, id }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db))
+  function retrieveDocument({ db, id }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
-      .chain(db => Async.fromPromise(db.findOne.bind(db))({ _id: id }))
+      .chain((db) => Async.fromPromise(db.findOne.bind(db))({ _id: id }))
       //.map(v => (console.log('result', v), v))
       .bimap(
-        e => ({ ok: false, msg: e.message }),
-        doc => ({ id, ...omit(['_id'], doc) })
+        (e) => ({ ok: false, msg: e.message }),
+        (doc) => ({ id, ...omit(["_id"], doc) }),
       )
-      .toPromise()
+      .toPromise();
   }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function updateDocument({ db, id, doc }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db))
+  function updateDocument({ db, id, doc }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
-      .chain(db => Async.fromPromise(db.updateOne.bind(db))({
-        _id: id
-      }, { $set: doc }))
-      .bimap(
-        e => ({ ok: false, msg: e.message }),
-        ({ matchedCount, modifiedCount }) => ({ ok: equals(2, add(matchedCount, modifiedCount)) })
+      .chain((db) =>
+        Async.fromPromise(db.updateOne.bind(db))({
+          _id: id,
+        }, { $set: doc })
       )
-      .toPromise()
+      .bimap(
+        (e) => ({ ok: false, msg: e.message }),
+        ({ matchedCount, modifiedCount }) => ({
+          ok: equals(2, add(matchedCount, modifiedCount)),
+        }),
+      )
+      .toPromise();
   }
 
   /**
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function removeDocument({ db, id }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db))
+  function removeDocument({ db, id }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
-      .chain(db => Async.fromPromise(db.deleteOne.bind(db))({
-        _id: id
-      }))
-      .bimap(
-        e => ({ ok: false, msg: e.message }),
-        _ => ({ ok: true, msg: _ })
+      .chain((db) =>
+        Async.fromPromise(db.deleteOne.bind(db))({
+          _id: id,
+        })
       )
-      .toPromise()
+      .bimap(
+        (e) => ({ ok: false, msg: e.message }),
+        (_) => ({ ok: true, msg: _ }),
+      )
+      .toPromise();
   }
 
   /**
    * @param {QueryDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function queryDocuments({ db, query }) { }
+  async function queryDocuments({ db, query }) {}
 
   /**
    *
@@ -166,7 +174,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
 
-  async function indexDocuments({ db, name, fields }) { }
+  async function indexDocuments({ db, name, fields }) {}
 
   /**
    *
@@ -175,14 +183,14 @@ export function adapter(client) {
    */
   async function listDocuments(
     { db, limit, startkey, endkey, keys, descending },
-  ) { }
+  ) {}
 
   /**
    *
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) { }
+  async function bulkDocuments({ db, docs }) {}
 
   return Object.freeze({
     createDatabase,
