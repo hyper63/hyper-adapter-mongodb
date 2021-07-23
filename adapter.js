@@ -1,7 +1,8 @@
 // deno-lint-ignore-file no-unused-vars
-import { crocks } from './deps.js'
+import { crocks, R } from './deps.js'
 
 const { Async, tryCatch, resultToAsync } = crocks
+const { add, equals, omit } = R
 /**
  *
  * @typedef {Object} CreateDocumentArgs
@@ -107,13 +108,34 @@ export function adapter(client) {
    * @param {RetrieveDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function retrieveDocument({ db, id }) { }
+  async function retrieveDocument({ db, id }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db))
+    return resultToAsync(getDb(db))
+      .chain(db => Async.fromPromise(db.findOne.bind(db))({ _id: id }))
+      //.map(v => (console.log('result', v), v))
+      .bimap(
+        e => ({ ok: false, msg: e.message }),
+        doc => ({ id, ...omit(['_id'], doc) })
+      )
+      .toPromise()
+  }
 
   /**
    * @param {CreateDocumentArgs}
    * @returns {Promise<Response>}
    */
-  async function updateDocument({ db, id, doc }) { }
+  async function updateDocument({ db, id, doc }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db))
+    return resultToAsync(getDb(db))
+      .chain(db => Async.fromPromise(db.updateOne.bind(db))({
+        _id: id
+      }, { $set: doc }))
+      .bimap(
+        e => ({ ok: false, msg: e.message }),
+        ({ matchedCount, modifiedCount }) => ({ ok: equals(2, add(matchedCount, modifiedCount)) })
+      )
+      .toPromise()
+  }
 
   /**
    * @param {RetrieveDocumentArgs}

@@ -31,3 +31,45 @@ test('create document', async () => {
   // cleanup
   await a.removeDocument({ db: 'hyper~movies', id: result.id })
 })
+
+test('get document', async () => {
+  // setup
+
+  await a.createDocument({
+    db: 'hyper~movies',
+    id: '3-groundhog-day',
+    doc: { title: 'Groundhog Day', year: '1988', genre: ['comedy'] }
+  })
+
+  // get document
+  const doc = await a.retrieveDocument({ db: 'hyper~movies', id: '3-groundhog-day' })
+  assertEquals(doc.id, '3-groundhog-day')
+  assertEquals(doc.title, 'Groundhog Day')
+  // cleanup
+  await a.removeDocument({ db: 'hyper~movies', id: '3-groundhog-day' })
+})
+
+test('update document', async () => {
+  // setup
+
+  await a.createDocument({
+    db: 'hyper~movies',
+    id: '5-caddyshack',
+    doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] }
+  })
+
+
+  // update document
+
+  const result = await a.updateDocument({ db: 'hyper~movies', id: '5-caddyshack', doc: { title: 'Caddyshack', year: '1979', genre: ['comedy', 'sports'] } })
+
+  assert(result.ok)
+
+  /*
+  assertEquals(doc.id, '5-caddyshack')
+  assertEquals(doc.year, '1979')
+  assertEquals(doc.genre[1], 'sports')
+  */
+  // cleanup
+  await a.removeDocument({ db: 'hyper~movies', id: '5-caddyshack' })
+})
