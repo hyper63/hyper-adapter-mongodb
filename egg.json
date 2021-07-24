@@ -5,7 +5,7 @@
   "description": "Hyper Data port adapter for mongoDb",
   "homepage": "https://github.com/hyper63/hyper-adapter-mongodb",
   "repo": "https://github.com/hyper63/hyper-adapter-mongodb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "unstable": false,
   "unlisted": false,
   "files": [
