@@ -10,9 +10,5 @@ export default (mongoUrl) => ({
     await client.connect(mongoUrl);
     return await client;
   }, // load env
-  link: (env) =>
-    (_) => {
-      console.log("env", env);
-      return adapter(env);
-    }, // link adapter
+  link: (env) => (_) => adapter(env), // link adapter
 });
