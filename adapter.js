@@ -55,7 +55,7 @@ export function adapter(client) {
   const listDatabases = cmd("listDatabases");
   const insertOne = cmd("insertOne");
   const drop = cmd("drop");
-  const findOne = cmd('findOne');
+  const findOne = cmd("findOne");
 
   const checkIfDbExists = (db) =>
     (mdb) =>
@@ -118,7 +118,11 @@ export function adapter(client) {
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       // if document is empty then return error
-      .chain((db) => isEmpty(doc) ? Async.Rejected({ ok: false, status: 400, msg: 'Document is empty' }) : Async.Resolved(db))
+      .chain((db) =>
+        isEmpty(doc)
+          ? Async.Rejected({ ok: false, status: 400, msg: "Document is empty" })
+          : Async.Resolved(db)
+      )
       .chain((db) =>
         insertOne(db)({
           _id: id,
@@ -141,10 +145,10 @@ export function adapter(client) {
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) => findOne(db)({ _id: id }))
-
-      .chain(doc => doc !== undefined
-        ? Async.Resolved(doc)
-        : Async.Rejected({ ok: false, status: 404, msg: 'Not Found!' })
+      .chain((doc) =>
+        doc !== undefined
+          ? Async.Resolved(doc)
+          : Async.Rejected({ ok: false, status: 404, msg: "Not Found!" })
       )
       // .bimap(
       //   (e) => ({ ok: false, status: 404, msg: 'Not Found!' }),
@@ -219,7 +223,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
 
-  async function indexDocuments({ db, name, fields }) { }
+  async function indexDocuments({ db, name, fields }) {}
 
   /**
    *
@@ -253,7 +257,7 @@ export function adapter(client) {
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) { }
+  async function bulkDocuments({ db, docs }) {}
 
   return Object.freeze({
     createDatabase,
