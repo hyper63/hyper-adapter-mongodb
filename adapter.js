@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-unused-vars
 import { crocks, R } from "./deps.js";
-import { formatDocs } from './utils.js';
+import { formatDocs, swap } from './utils.js';
 
 const { Async, tryCatch, resultToAsync } = crocks;
-const { add, always, assoc, contains, equals, isEmpty, lensPath, map, pluck, set, split } = R;
+const { add, always, assoc, contains, equals, isEmpty, lensPath, lensProp, map, pluck, set, split } = R;
 const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
 /**
@@ -241,16 +241,13 @@ export function adapter(client) {
       q = keys ? set(lensPath(["_id", "$in"]), split(',', keys), q) : q;
 
       let options = {};
-      options = limit ? assoc("limit", limit, options) : options;
-      options = descending ? assoc("sort", [["_id", 1]], options) : options;
+      options = limit ? set(lensProp('limit'), Number(limit), options) : options;
+      options = descending ? set(lensProp('sort'), { _id: -1 }, options) : options;
 
       const m = client.database(db).collection(db);
-      console.log('query', q)
-      console.log('options', options)
-
       const docs = await m.find(q, options).toArray();
-      console.log('results', docs)
-      return { ok: true, docs };
+
+      return { ok: true, docs: map(swap('_id', 'id'), docs) };
     } catch (e) {
       console.log('ERROR: ', e.message)
       return { ok: false, msg: e.message };
