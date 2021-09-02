@@ -207,7 +207,7 @@ export function adapter(client) {
   async function queryDocuments({ db, query }) {
     try {
       let options = {};
-      options = query.limit ? assoc("limit", query.limit, options) : options;
+      options = query.limit ? assoc("limit", Number(query.limit), options) : options;
 
       const m = client.database(db).collection(db);
       const docs = await m.find(query.selector, options).toArray();
