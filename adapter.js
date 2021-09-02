@@ -2,7 +2,9 @@
 import { crocks, R } from "./deps.js";
 
 const { Async, tryCatch, resultToAsync } = crocks;
-const { add, assoc, equals } = R;
+const { add, always, assoc, contains, equals, pluck } = R;
+const cmd = n => db => Async.fromPromise(db[n].bind(db))
+
 /**
  *
  * @typedef {Object} CreateDocumentArgs
@@ -46,16 +48,29 @@ const { add, assoc, equals } = R;
  */
 
 export function adapter(client) {
+  let dbs = [] // add 
+  client.listDatabases().then(r => dbs = r)
+
+  // TODO: wrap all mongo commands into asyncs
+  const listDatabases = cmd('listDatabases')
+  const insertOne = cmd('insertOne')
+  const drop = cmd('drop')
+
+  const checkIfDbExists = db => mdb => listDatabases(client)()
+    .chain(dbs => contains(db, pluck('name', dbs)) ? Async.Resolved(mdb) : Async.Rejected({ ok: false, status: 400, msg: 'Database not found!' }))
+    .map(always(mdb))
+
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
   function createDatabase(name) {
-    const result = tryCatch((name) => {
-      client.database(name).collection(name);
-    });
+    const result = tryCatch((name) =>
+      client.database(name).collection(name)
+    );
 
     return resultToAsync(result(name))
+      .chain(db => insertOne(db)({ _id: 'info', type: '_ADMIN', created: new Date().toISOString() }))
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         () => ({ ok: true }),
@@ -68,22 +83,16 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function removeDatabase(name) {
-    /*
-    const db = tryCatch(() =>
+    const db = tryCatch((name) =>
       client.database(name).collection(name)
     )
     return resultToAsync(db(name))
-      .chain(db => Async.fromPromise(db.drop)())
+      .chain(db => drop(db)())
       .bimap(
         e => ({ ok: false, msg: e.message }),
-        x => {
-          console.log('x', x)
-          return ({ ok: true })
-        }
+        always({ ok: true })
       )
       .toPromise()
-      */
-    return Promise.resolve({ ok: true, msg: "Feature not implemented!" });
   }
 
   /**
@@ -92,16 +101,18 @@ export function adapter(client) {
    */
   function createDocument({ db, id, doc }) {
     const getDb = tryCatch((db) => client.database(db).collection(db));
+
     return resultToAsync(getDb(db))
+      .chain(checkIfDbExists(db))
       .chain((db) =>
-        Async.fromPromise(db.insertOne.bind(db))({
+        insertOne(db)({
           _id: id,
           ...doc,
         })
-      )
-      .bimap(
-        (e) => ({ ok: false, msg: e.message }),
-        (id) => ({ ok: true, id }),
+          .bimap(
+            (e) => ({ ok: false, status: 409, id, msg: e.message }),
+            (id) => ({ ok: true, id }),
+          )
       )
       .toPromise();
   }
@@ -113,6 +124,7 @@ export function adapter(client) {
   function retrieveDocument({ db, id }) {
     const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
+      .chain(checkIfDbExists(db))
       .chain((db) => Async.fromPromise(db.findOne.bind(db))({ _id: id }))
       //.map(v => (console.log('result', v), v))
       .bimap(
@@ -129,6 +141,7 @@ export function adapter(client) {
   function updateDocument({ db, id, doc }) {
     const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
+      .chain(checkIfDbExists(db))
       .chain((db) =>
         Async.fromPromise(db.updateOne.bind(db))({
           _id: id,
@@ -150,14 +163,15 @@ export function adapter(client) {
   function removeDocument({ db, id }) {
     const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
+      .chain(checkIfDbExists(db))
       .chain((db) =>
-        Async.fromPromise(db.deleteOne.bind(db))({
+        Async.fromPromise(db.delete.bind(db))({
           _id: id,
         })
       )
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
-        (_) => ({ ok: true, msg: _ }),
+        (_) => ({ ok: true, id, msg: _ }),
       )
       .toPromise();
   }
@@ -186,7 +200,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
 
-  async function indexDocuments({ db, name, fields }) {}
+  async function indexDocuments({ db, name, fields }) { }
 
   /**
    *
@@ -220,7 +234,7 @@ export function adapter(client) {
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) {}
+  async function bulkDocuments({ db, docs }) { }
 
   return Object.freeze({
     createDatabase,
