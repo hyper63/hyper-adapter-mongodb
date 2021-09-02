@@ -1,8 +1,9 @@
 // deno-lint-ignore-file no-unused-vars
 import { crocks, R } from "./deps.js";
+import { formatDocs } from './utils.js';
 
 const { Async, tryCatch, resultToAsync } = crocks;
-const { add, always, assoc, contains, equals, isEmpty, pluck } = R;
+const { add, always, assoc, contains, equals, isEmpty, lensPath, map, pluck, set, split } = R;
 const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
 /**
@@ -56,6 +57,8 @@ export function adapter(client) {
   const insertOne = cmd("insertOne");
   const drop = cmd("drop");
   const findOne = cmd("findOne");
+  const updateOne = cmd("updateOne")
+  const removeOne = cmd('deleteOne')
 
   const checkIfDbExists = (db) =>
     (mdb) =>
@@ -150,10 +153,6 @@ export function adapter(client) {
           ? Async.Resolved(doc)
           : Async.Rejected({ ok: false, status: 404, msg: "Not Found!" })
       )
-      // .bimap(
-      //   (e) => ({ ok: false, status: 404, msg: 'Not Found!' }),
-      //   (doc) => doc,
-      // )
       .toPromise();
   }
 
@@ -166,14 +165,16 @@ export function adapter(client) {
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
-        Async.fromPromise(db.updateOne.bind(db))({
+        updateOne(db)({
           _id: id,
         }, { $set: doc })
       )
+      .map(v => (console.log(v), v))
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         ({ matchedCount, modifiedCount }) => ({
           ok: equals(2, add(matchedCount, modifiedCount)),
+          id
         }),
       )
       .toPromise();
@@ -188,7 +189,7 @@ export function adapter(client) {
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
-        Async.fromPromise(db.delete.bind(db))({
+        removeOne(db)({
           _id: id,
         })
       )
@@ -223,7 +224,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
 
-  async function indexDocuments({ db, name, fields }) {}
+  async function indexDocuments({ db, name, fields }) { }
 
   /**
    *
@@ -235,19 +236,23 @@ export function adapter(client) {
   ) {
     try {
       let q = {};
-      q = startkey ? assoc("_id", { $gte: startkey }, q) : q;
-      q = endkey ? assoc("_id", { $lte: endkey }, q) : q;
-      q = keys ? assoc("_id", { $in: keys }, q) : q;
+      q = startkey ? set(lensPath(["_id", "$gte"]), startkey, q) : q;
+      q = endkey ? set(lensPath(["_id", "$lte"]), endkey, q) : q;
+      q = keys ? set(lensPath(["_id", "$in"]), split(',', keys), q) : q;
 
       let options = {};
       options = limit ? assoc("limit", limit, options) : options;
       options = descending ? assoc("sort", [["_id", 1]], options) : options;
 
       const m = client.database(db).collection(db);
-      const docs = await m.find(q, options).toArray();
+      console.log('query', q)
+      console.log('options', options)
 
+      const docs = await m.find(q, options).toArray();
+      console.log('results', docs)
       return { ok: true, docs };
     } catch (e) {
+      console.log('ERROR: ', e.message)
       return { ok: false, msg: e.message };
     }
   }
@@ -257,7 +262,28 @@ export function adapter(client) {
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) {}
+  async function bulkDocuments({ db, docs }) {
+    const getDb = tryCatch((db) => client.database(db).collection(db));
+    return resultToAsync(getDb(db))
+      .chain(checkIfDbExists(db))
+      .chain(db => Async.all(
+        map(d => {
+          if (d.insert) {
+            return insertOne(db)(d.insert.document)
+          } else if (d.replaceOne) {
+            return updateOne(db)(d.replaceOne.fiilter, d.replaceOne.replacement)
+          } else if (d.deleteOne) {
+            return removeOne(db)(d.deleteOne.filter)
+          }
+        }, formatDocs(docs))
+      ))
+
+      .bimap(
+        (e) => ({ ok: false, msg: e.message }),
+        (_) => ({ ok: true, results: map(d => ({ ok: true, id: d.id }), docs) }),
+      )
+      .toPromise();
+  }
 
   return Object.freeze({
     createDatabase,
