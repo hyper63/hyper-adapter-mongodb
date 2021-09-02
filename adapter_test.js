@@ -9,15 +9,23 @@ await client.connect("mongodb://127.0.0.1:27017");
 
 const a = adapter(client);
 
+await a.removeDatabase("hyper~movies").catch((e) => e);
+await a.createDatabase("hyper~movies").catch((e) => e);
+
+/*
 test("create database", async () => {
+
   const result = await a.createDatabase("hyper~movies");
   assert(result.ok);
+  await a.removeDatabase("hyper~movies");
 });
 
 test("remove database", async () => {
+  await a.createDatabase("hyper~movies");
   const result = await a.removeDatabase("hyper~movies");
   assert(result.ok);
 });
+*/
 
 test("create document", async () => {
   const result = await a.createDocument({
@@ -33,7 +41,6 @@ test("create document", async () => {
 
 test("get document", async () => {
   // setup
-
   await a.createDocument({
     db: "hyper~movies",
     id: "3-groundhog-day",
@@ -53,7 +60,6 @@ test("get document", async () => {
 
 test("update document", async () => {
   // setup
-
   await a.createDocument({
     db: "hyper~movies",
     id: "5-caddyshack",
@@ -76,7 +82,6 @@ test("update document", async () => {
 
 test("query documents", async () => {
   // setup
-
   await a.createDocument({
     db: "hyper~movies",
     id: "10-caddyshack",
@@ -107,7 +112,6 @@ test("query documents", async () => {
 
 test("list documents", async () => {
   // setup
-
   await a.createDocument({
     db: "hyper~movies",
     id: "20-caddyshack",

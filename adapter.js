@@ -2,8 +2,8 @@
 import { crocks, R } from "./deps.js";
 
 const { Async, tryCatch, resultToAsync } = crocks;
-const { add, always, assoc, contains, equals, pluck } = R;
-const cmd = n => db => Async.fromPromise(db[n].bind(db))
+const { add, always, assoc, contains, equals, isEmpty, pluck } = R;
+const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
 /**
  *
@@ -48,29 +48,44 @@ const cmd = n => db => Async.fromPromise(db[n].bind(db))
  */
 
 export function adapter(client) {
-  let dbs = [] // add 
-  client.listDatabases().then(r => dbs = r)
+  let dbs = []; // add
+  client.listDatabases().then((r) => dbs = r);
 
   // TODO: wrap all mongo commands into asyncs
-  const listDatabases = cmd('listDatabases')
-  const insertOne = cmd('insertOne')
-  const drop = cmd('drop')
+  const listDatabases = cmd("listDatabases");
+  const insertOne = cmd("insertOne");
+  const drop = cmd("drop");
+  const findOne = cmd('findOne');
 
-  const checkIfDbExists = db => mdb => listDatabases(client)()
-    .chain(dbs => contains(db, pluck('name', dbs)) ? Async.Resolved(mdb) : Async.Rejected({ ok: false, status: 400, msg: 'Database not found!' }))
-    .map(always(mdb))
+  const checkIfDbExists = (db) =>
+    (mdb) =>
+      listDatabases(client)()
+        .chain((dbs) =>
+          contains(db, pluck("name", dbs))
+            ? Async.Resolved(mdb)
+            : Async.Rejected({
+              ok: false,
+              status: 400,
+              msg: "Database not found!",
+            })
+        )
+        .map(always(mdb));
 
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
   function createDatabase(name) {
-    const result = tryCatch((name) =>
-      client.database(name).collection(name)
-    );
+    const result = tryCatch((name) => client.database(name).collection(name));
 
     return resultToAsync(result(name))
-      .chain(db => insertOne(db)({ _id: 'info', type: '_ADMIN', created: new Date().toISOString() }))
+      .chain((db) =>
+        insertOne(db)({
+          _id: "info",
+          type: "_ADMIN",
+          created: new Date().toISOString(),
+        })
+      )
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         () => ({ ok: true }),
@@ -83,16 +98,14 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function removeDatabase(name) {
-    const db = tryCatch((name) =>
-      client.database(name).collection(name)
-    )
+    const db = tryCatch((name) => client.database(name).collection(name));
     return resultToAsync(db(name))
-      .chain(db => drop(db)())
+      .chain((db) => drop(db)())
       .bimap(
-        e => ({ ok: false, msg: e.message }),
-        always({ ok: true })
+        (e) => ({ ok: false, msg: e.message }),
+        always({ ok: true }),
       )
-      .toPromise()
+      .toPromise();
   }
 
   /**
@@ -104,6 +117,8 @@ export function adapter(client) {
 
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
+      // if document is empty then return error
+      .chain((db) => isEmpty(doc) ? Async.Rejected({ ok: false, status: 400, msg: 'Document is empty' }) : Async.Resolved(db))
       .chain((db) =>
         insertOne(db)({
           _id: id,
@@ -125,12 +140,16 @@ export function adapter(client) {
     const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
-      .chain((db) => Async.fromPromise(db.findOne.bind(db))({ _id: id }))
-      //.map(v => (console.log('result', v), v))
-      .bimap(
-        (e) => ({ ok: false, msg: e.message }),
-        (doc) => doc,
+      .chain((db) => findOne(db)({ _id: id }))
+
+      .chain(doc => doc !== undefined
+        ? Async.Resolved(doc)
+        : Async.Rejected({ ok: false, status: 404, msg: 'Not Found!' })
       )
+      // .bimap(
+      //   (e) => ({ ok: false, status: 404, msg: 'Not Found!' }),
+      //   (doc) => doc,
+      // )
       .toPromise();
   }
 
