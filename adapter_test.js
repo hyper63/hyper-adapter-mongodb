@@ -94,12 +94,26 @@ test("query documents", async () => {
     doc: { title: "Ghostbusters", year: "1980", genre: ["comedy"] },
   });
 
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "15-starwars",
+    doc: { title: "Star Wars", year: "1976", genre: ["sci-fi"] },
+  });
+
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "17-jaws",
+    doc: { title: "Jaws", year: "1977", genre: ["drama"] },
+  });
+
   // query document
 
   const result = await a.queryDocuments({
     db: "hyper~movies",
     query: {
-      selector: { year: { $gt: "1979" } },
+      selector: { year: { $lt: "1979" } },
+      fields: ["title", "year"],
+      sort: [{ title: "DESC" }, { year: "DESC" }],
     },
   });
 
@@ -108,6 +122,8 @@ test("query documents", async () => {
   // cleanup
   await a.removeDocument({ db: "hyper~movies", id: "10-caddyshack" });
   await a.removeDocument({ db: "hyper~movies", id: "12-ghostbusters" });
+  await a.removeDocument({ db: "hyper~movies", id: "15-starwars" });
+  await a.removeDocument({ db: "hyper~movies", id: "17-jaws" });
 });
 
 test("list documents", async () => {
