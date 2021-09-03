@@ -7,7 +7,6 @@ const {
   __,
   add,
   always,
-  assoc,
   contains,
   equals,
   isEmpty,
@@ -17,8 +16,6 @@ const {
   pluck,
   set,
   split,
-  keys,
-  values,
 } = R;
 const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
@@ -103,7 +100,11 @@ export function adapter(client) {
           _id: "info",
           type: "_ADMIN",
           created: new Date().toISOString(),
-        })
+        }).map(always(db))
+      )
+      .chain((db) =>
+        removeOne(db)({ _id: "info" })
+          .map(always(db))
       )
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
@@ -237,7 +238,9 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
 
-  async function indexDocuments({ db, name, fields }) { }
+  function indexDocuments({ db, name, fields }) {
+    return Promise.reject({ ok: false, status: 501, msg: "Not Implemented!" });
+  }
 
   /**
    *
