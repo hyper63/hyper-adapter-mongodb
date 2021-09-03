@@ -1,9 +1,25 @@
 // deno-lint-ignore-file no-unused-vars
 import { crocks, R } from "./deps.js";
-import { formatDocs, swap } from './utils.js';
+import { formatDocs, queryOptions, swap } from "./utils.js";
 
 const { Async, tryCatch, resultToAsync } = crocks;
-const { add, always, assoc, contains, equals, isEmpty, lensPath, lensProp, map, pluck, set, split } = R;
+const {
+  __,
+  add,
+  always,
+  assoc,
+  contains,
+  equals,
+  isEmpty,
+  lensPath,
+  lensProp,
+  map,
+  pluck,
+  set,
+  split,
+  keys,
+  values,
+} = R;
 const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
 /**
@@ -57,8 +73,8 @@ export function adapter(client) {
   const insertOne = cmd("insertOne");
   const drop = cmd("drop");
   const findOne = cmd("findOne");
-  const updateOne = cmd("updateOne")
-  const removeOne = cmd('deleteOne')
+  const updateOne = cmd("updateOne");
+  const removeOne = cmd("deleteOne");
 
   const checkIfDbExists = (db) =>
     (mdb) =>
@@ -169,12 +185,12 @@ export function adapter(client) {
           _id: id,
         }, { $set: doc })
       )
-      .map(v => (console.log(v), v))
+      .map((v) => (console.log(v), v))
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         ({ matchedCount, modifiedCount }) => ({
           ok: equals(2, add(matchedCount, modifiedCount)),
-          id
+          id,
         }),
       )
       .toPromise();
@@ -206,14 +222,11 @@ export function adapter(client) {
    */
   async function queryDocuments({ db, query }) {
     try {
-      let options = {};
-      options = query.limit ? assoc("limit", Number(query.limit), options) : options;
-
       const m = client.database(db).collection(db);
-      const docs = await m.find(query.selector, options).toArray();
-
-      return { ok: true, docs };
+      const docs = await m.find(query.selector, queryOptions(query)).toArray();
+      return { ok: true, docs: map(swap("_id", "id"), docs) };
     } catch (e) {
+      console.log(e);
       return { ok: false, msg: e.message };
     }
   }
@@ -238,18 +251,22 @@ export function adapter(client) {
       let q = {};
       q = startkey ? set(lensPath(["_id", "$gte"]), startkey, q) : q;
       q = endkey ? set(lensPath(["_id", "$lte"]), endkey, q) : q;
-      q = keys ? set(lensPath(["_id", "$in"]), split(',', keys), q) : q;
+      q = keys ? set(lensPath(["_id", "$in"]), split(",", keys), q) : q;
 
       let options = {};
-      options = limit ? set(lensProp('limit'), Number(limit), options) : options;
-      options = descending ? set(lensProp('sort'), { _id: -1 }, options) : options;
+      options = limit
+        ? set(lensProp("limit"), Number(limit), options)
+        : options;
+      options = descending
+        ? set(lensProp("sort"), { _id: -1 }, options)
+        : options;
 
       const m = client.database(db).collection(db);
       const docs = await m.find(q, options).toArray();
 
-      return { ok: true, docs: map(swap('_id', 'id'), docs) };
+      return { ok: true, docs: map(swap("_id", "id"), docs) };
     } catch (e) {
-      console.log('ERROR: ', e.message)
+      console.log("ERROR: ", e.message);
       return { ok: false, msg: e.message };
     }
   }
@@ -259,25 +276,32 @@ export function adapter(client) {
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
-  async function bulkDocuments({ db, docs }) {
+  function bulkDocuments({ db, docs }) {
     const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
-      .chain(db => Async.all(
-        map(d => {
-          if (d.insert) {
-            return insertOne(db)(d.insert.document)
-          } else if (d.replaceOne) {
-            return updateOne(db)(d.replaceOne.fiilter, d.replaceOne.replacement)
-          } else if (d.deleteOne) {
-            return removeOne(db)(d.deleteOne.filter)
-          }
-        }, formatDocs(docs))
-      ))
-
+      .chain((db) =>
+        Async.all(
+          map((d) => {
+            if (d.insert) {
+              return insertOne(db)(d.insert.document);
+            } else if (d.replaceOne) {
+              return updateOne(db)(
+                d.replaceOne.filter,
+                d.replaceOne.replacement,
+              );
+            } else if (d.deleteOne) {
+              return removeOne(db)(d.deleteOne.filter);
+            }
+          }, formatDocs(docs)),
+        )
+      )
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
-        (_) => ({ ok: true, results: map(d => ({ ok: true, id: d.id }), docs) }),
+        (_) => ({
+          ok: true,
+          results: map((d) => ({ ok: true, id: d.id }), docs),
+        }),
       )
       .toPromise();
   }
