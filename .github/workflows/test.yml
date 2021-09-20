@@ -2,18 +2,18 @@ name: Test
 
 on:
   push:
-    branches: 
+    branches:
       - main
-      - '**'
+      - "**"
     tags-ignore:
-      - '*'
+      - "*"
 
 jobs:
-  build:
+  unit:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        deno-version: [1.12.x]
+        deno-version: [1.13.x, 1.14.x]
         mongodb-version: [4.0]
     steps:
       - uses: actions/checkout@v2
@@ -28,3 +28,23 @@ jobs:
       - run: ./scripts/test.sh
         env:
           CI: true
+  # integrated:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       deno-version: [1.14.x]
+  #       mongodb-version: [4.0]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Use Deno ${{ matrix.deno-version }}
+  #       uses: denoland/setup-deno@v1
+  #       with:
+  #         deno-version: ${{ matrix.deno-version }}
+  #     - name: Start MongoDB
+  #       uses: supercharge/mongodb-github-action@1.6.0
+  #       with:
+  #         mongodb-version: ${{ matrix.mongodb-version }}
+  #     - run: npx pm2 start ./scripts/harness.sh & (while ! curl --output /dev/null --silent --head --fail http://127.0.0.1:6363; do sleep 1 && echo -n .; done;) && ./scripts/ci.sh
+  #       env:
+  #         HYPER: http://127.0.0.1:6363/test
+  #         CI: true

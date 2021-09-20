@@ -20,7 +20,6 @@ const {
 const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
 /**
- *
  * @typedef {Object} CreateDocumentArgs
  * @property {string} db
  * @property {string} id
@@ -233,7 +232,6 @@ export function adapter(client) {
   }
 
   /**
-   *
    * @param {IndexDocumentArgs}
    * @returns {Promise<Response>}
    */
@@ -243,7 +241,6 @@ export function adapter(client) {
   }
 
   /**
-   *
    * @param {ListDocumentArgs}
    * @returns {Promise<Response>}
    */
@@ -275,7 +272,6 @@ export function adapter(client) {
   }
 
   /**
-   *
    * @param {BulkDocumentsArgs}
    * @returns {Promise<Response>}
    */
