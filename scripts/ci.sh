@@ -1,0 +1,1 @@
+HYPER=http://localhost:6363/test deno test --no-check --allow-net --allow-env --import-map=https://x.nest.land/hyper-test@0.0.1/import_map.json https://x.nest.land/hyper-test@0.0.1/mod.js

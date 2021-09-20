@@ -3,7 +3,8 @@ image:
 
 tasks:
   - command: mkdir -p /workspace/data && mongod --dbpath /workspace/data
-  - command: ./scripts/test.sh
+  - init: git config core.hooksPath .hooks
+    command: ./scripts/test.sh
 
 github:
   prebuilds:
@@ -21,4 +22,3 @@ github:
     addComment: true
     # add a "Review in Gitpod" button to the pull request's description (defaults to false)
     addBadge: false
-    
