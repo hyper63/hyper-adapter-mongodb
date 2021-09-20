@@ -44,7 +44,7 @@ jobs:
         uses: supercharge/mongodb-github-action@1.6.0
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
-      - run: npx pm2 start ./scripts/harness.sh & sleep 60 && curl 127.0.0.1:6363
+      - run: npx pm2 start ./scripts/harness.sh & (while ! curl --output /dev/null --silent --head --fail http://localhost:6363; do sleep 1 && echo -n .; done;) && ./scripts/ci.sh
         env:
           HYPER: http://127.0.0.1:6363/test
           CI: true
