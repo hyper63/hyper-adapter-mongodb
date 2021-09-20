@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        deno-version: [1.13.x, 1.14.x]
+        deno-version: [1.14.x]
         mongodb-version: [4.0]
     steps:
       - uses: actions/checkout@v2
