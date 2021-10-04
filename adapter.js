@@ -163,7 +163,11 @@ export function adapter(client) {
     const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
-      .chain((db) => findOne(db)({ _id: id }))
+      .chain((db) =>
+        findOne(db)({ _id: id }, {
+          noCursorTimeout: undefined,
+        })
+      )
       .chain((doc) =>
         doc !== undefined
           ? Async.Resolved(doc)
@@ -223,7 +227,10 @@ export function adapter(client) {
   async function queryDocuments({ db, query }) {
     try {
       const m = client.database(db).collection(db);
-      const docs = await m.find(query.selector, queryOptions(query)).toArray();
+      const docs = await m.find(query.selector, {
+        ...queryOptions(query),
+        noCursorTimeout: undefined,
+      }).toArray();
       return { ok: true, docs: map(swap("_id", "id"), docs) };
     } catch (e) {
       console.log(e);
@@ -262,7 +269,10 @@ export function adapter(client) {
         : options;
 
       const m = client.database(db).collection(db);
-      const docs = await m.find(q, options).toArray();
+      const docs = await m.find(q, {
+        ...options,
+        noCursorTimeout: undefined,
+      }).toArray();
 
       return { ok: true, docs: map(swap("_id", "id"), docs) };
     } catch (e) {
