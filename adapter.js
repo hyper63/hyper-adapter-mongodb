@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-unused-vars
-import { crocks, R } from "./deps.js";
+import { crocks, deepSwap, R } from "./deps.js";
 import { formatDocs, queryOptions, swap } from "./utils.js";
 
 const { Async, tryCatch, resultToAsync } = crocks;
@@ -227,7 +227,7 @@ export function adapter(client) {
   async function queryDocuments({ db, query }) {
     try {
       const m = client.database(db).collection(db);
-      const docs = await m.find(query.selector, {
+      const docs = await m.find(deepSwap("id", "_id", query.selector), {
         ...queryOptions(query),
         noCursorTimeout: undefined,
       }).toArray();
