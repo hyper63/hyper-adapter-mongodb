@@ -1,15 +1,8 @@
 import { R } from "./deps.js";
 
-const { assoc, map, omit, keys, values, lens, prop } = R;
-
-export const xId = lens(prop("_id"), assoc("id"));
+const { assoc, map, omit, keys, values } = R;
 
 export const formatDocs = map((d) => {
-  d = omit(["id"], {
-    ...d,
-    _id: d._id || d.id,
-  });
-
   if (d._deleted) {
     return { deleteOne: { filter: { _id: d._id } } };
   } else if (d._update) {

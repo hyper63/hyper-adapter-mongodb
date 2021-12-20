@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-unused-vars
 import { crocks, R } from "./deps.js";
-import { formatDocs, queryOptions, xId } from "./utils.js";
+import { formatDocs, queryOptions } from "./utils.js";
 
 const { Async, tryCatch, resultToAsync } = crocks;
 const {
@@ -15,8 +15,6 @@ const {
   pluck,
   set,
   split,
-  over,
-  identity,
 } = R;
 const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
@@ -145,8 +143,8 @@ export function adapter(client) {
       )
       .chain((db) =>
         insertOne(db)({
-          _id: id,
           ...doc,
+          _id: id,
         })
           .bimap(
             (e) => ({ ok: false, status: 409, id, msg: e.message }),
@@ -174,7 +172,6 @@ export function adapter(client) {
           ? Async.Resolved(doc)
           : Async.Rejected({ ok: false, status: 404, msg: "Not Found!" })
       )
-      .map(over(xId, identity))
       .toPromise();
   }
 
@@ -232,7 +229,7 @@ export function adapter(client) {
         ...queryOptions(query),
         noCursorTimeout: undefined,
       }).toArray();
-      return { ok: true, docs: map(over(xId, identity), docs) };
+      return { ok: true, docs };
     } catch (e) {
       console.log(e);
       return { ok: false, msg: e.message };
@@ -297,7 +294,7 @@ export function adapter(client) {
         noCursorTimeout: undefined,
       }).toArray();
 
-      return { ok: true, docs: map(over(xId, identity), docs) };
+      return { ok: true, docs };
     } catch (e) {
       console.log("ERROR: ", e.message);
       return { ok: false, msg: e.message };
@@ -333,7 +330,7 @@ export function adapter(client) {
         (_) => ({
           ok: true,
           results: map(
-            (d) => ({ ok: true, id: d.id || d._id, _id: d._id }),
+            (d) => ({ ok: true, id: d._id }),
             docs,
           ),
         }),
