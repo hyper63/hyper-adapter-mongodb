@@ -243,8 +243,30 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
 
-  function indexDocuments({ db, name, fields }) {
-    return Promise.reject({ ok: false, status: 501, msg: "Not Implemented!" });
+  async function indexDocuments({ db, name, fields }) {
+    try {
+      const m = client.database(db).collection(db);
+
+      const key = fields.reduce((acc, field) => ({
+        ...acc,
+        [field]: 1, // 1 means an ascending index, -1 for descending
+      }), {});
+
+      // https://docs.mongodb.com/manual/reference/command/createIndexes/#mongodb-dbcommand-dbcmd.createIndexes
+      await m.createIndexes({
+        indexes: [
+          {
+            key,
+            name,
+          },
+        ],
+      });
+
+      return { ok: true };
+    } catch (e) {
+      console.log(e);
+      return { ok: false, msg: e.message };
+    }
   }
 
   /**
