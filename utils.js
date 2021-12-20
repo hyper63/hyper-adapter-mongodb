@@ -5,10 +5,10 @@ const { assoc, map, omit, keys, values, lens, prop } = R;
 export const xId = lens(prop("_id"), assoc("id"));
 
 export const formatDocs = map((d) => {
-  d = {
+  d = omit(["id"], {
     ...d,
     _id: d._id || d.id,
-  };
+  });
 
   if (d._deleted) {
     return { deleteOne: { filter: { _id: d._id } } };

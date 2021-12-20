@@ -70,7 +70,7 @@ export function adapter(client) {
   const insertOne = cmd("insertOne");
   const drop = cmd("drop");
   const findOne = cmd("findOne");
-  const updateOne = cmd("updateOne");
+  const replaceOne = cmd("replaceOne");
   const removeOne = cmd("deleteOne");
 
   const checkIfDbExists = (db) =>
@@ -187,11 +187,10 @@ export function adapter(client) {
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
-        updateOne(db)({
+        replaceOne(db)({
           _id: id,
-        }, { $set: doc })
+        }, doc)
       )
-      .map((v) => (console.log(v), v))
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         ({ matchedCount, modifiedCount }) => ({
@@ -310,7 +309,6 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function bulkDocuments({ db, docs }) {
-    console.log("update", docs);
     const getDb = tryCatch((db) => client.database(db).collection(db));
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
@@ -335,10 +333,7 @@ export function adapter(client) {
         (_) => ({
           ok: true,
           results: map(
-            (d) => {
-              console.log(d);
-              return ({ ok: true, id: d.id || d._id, _id: d._id });
-            },
+            (d) => ({ ok: true, id: d.id || d._id, _id: d._id }),
             docs,
           ),
         }),
