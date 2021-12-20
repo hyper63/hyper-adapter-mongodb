@@ -1,12 +1,15 @@
 import { R } from "./deps.js";
 
-const { assoc, compose, map, omit, keys, values } = R;
+const { assoc, map, omit, keys, values, lens, prop } = R;
 
-export const swap = (a, b) =>
-  compose(omit([a]), (doc) => assoc(b, doc[a], doc));
+export const xId = lens(prop("_id"), assoc("id"));
 
 export const formatDocs = map((d) => {
-  d = swap("id", "_id")(d);
+  d = omit(["id"], {
+    ...d,
+    _id: d._id || d.id,
+  });
+
   if (d._deleted) {
     return { deleteOne: { filter: { _id: d._id } } };
   } else if (d._update) {

@@ -52,8 +52,10 @@ test("get document", async () => {
     db: "hyper~movies",
     id: "3-groundhog-day",
   });
-  assertEquals(doc._id, "3-groundhog-day");
   assertEquals(doc.title, "Groundhog Day");
+  assertEquals(doc._id, "3-groundhog-day");
+  // TODO: remove when blueberry is released
+  assertEquals(doc.id, doc._id);
   // cleanup
   await a.removeDocument({ db: "hyper~movies", id: "3-groundhog-day" });
 });
@@ -118,6 +120,9 @@ test("query documents", async () => {
   });
 
   assert(result.ok);
+  assertEquals(result.docs[0]._id, "15-starwars");
+  // TODO: remove when blueberry is released
+  assertEquals(result.docs[0].id, result.docs[0]._id);
 
   // cleanup
   await a.removeDocument({ db: "hyper~movies", id: "10-caddyshack" });
@@ -150,8 +155,43 @@ test("list documents", async () => {
 
   assert(result.ok);
   assertEquals(result.docs.length, 2);
+  assertEquals(result.docs[0]._id, "20-caddyshack");
+  // TODO: remove when blueberry is released
+  assertEquals(result.docs[0].id, result.docs[0]._id);
 
   // cleanup
   await a.removeDocument({ db: "hyper~movies", id: "20-caddyshack" });
   await a.removeDocument({ db: "hyper~movies", id: "22-ghostbusters" });
+});
+
+test("index documents documents", async () => {
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "20-caddyshack",
+    doc: { title: "Caddyshack", year: "1978", genre: ["comedy"] },
+  });
+
+  await a.createDocument({
+    db: "hyper~movies",
+    id: "22-ghostbusters",
+    doc: { title: "Ghostbusters", year: "1980", genre: ["comedy"] },
+  });
+
+  const result = await a.indexDocuments({
+    db: "hyper~movies",
+    name: "foobar",
+    fields: ["title", "year"],
+  });
+
+  assert(result.ok);
+
+  // cleanup
+  await a.removeDocument({ db: "hyper~movies", id: "20-caddyshack" });
+  await a.removeDocument({ db: "hyper~movies", id: "22-ghostbusters" });
+
+  // Adapters don't have a drop index, so we use the client directly
+  const m = client.database("hyper~movies").collection("hyper~movies");
+  await m.dropIndexes({
+    index: "foobar",
+  });
 });

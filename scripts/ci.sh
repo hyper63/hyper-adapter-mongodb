@@ -1,1 +1,1 @@
-deno test --no-check --allow-net --allow-env --import-map=https://x.nest.land/hyper-test@0.0.2/import_map.json https://x.nest.land/hyper-test@0.0.2/mod.js
+deno test --no-check --allow-net --allow-env --import-map=https://x.nest.land/hyper-test@0.0.4/import_map.json https://x.nest.land/hyper-test@0.0.4/mod.js

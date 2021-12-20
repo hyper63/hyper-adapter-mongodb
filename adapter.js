@@ -1,10 +1,9 @@
 // deno-lint-ignore-file no-unused-vars
-import { crocks, deepSwap, R } from "./deps.js";
-import { formatDocs, queryOptions, swap } from "./utils.js";
+import { crocks, R } from "./deps.js";
+import { formatDocs, queryOptions, xId } from "./utils.js";
 
 const { Async, tryCatch, resultToAsync } = crocks;
 const {
-  __,
   add,
   always,
   contains,
@@ -16,6 +15,8 @@ const {
   pluck,
   set,
   split,
+  over,
+  identity,
 } = R;
 const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
 
@@ -69,7 +70,7 @@ export function adapter(client) {
   const insertOne = cmd("insertOne");
   const drop = cmd("drop");
   const findOne = cmd("findOne");
-  const updateOne = cmd("updateOne");
+  const replaceOne = cmd("replaceOne");
   const removeOne = cmd("deleteOne");
 
   const checkIfDbExists = (db) =>
@@ -173,6 +174,7 @@ export function adapter(client) {
           ? Async.Resolved(doc)
           : Async.Rejected({ ok: false, status: 404, msg: "Not Found!" })
       )
+      .map(over(xId, identity))
       .toPromise();
   }
 
@@ -185,11 +187,10 @@ export function adapter(client) {
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
-        updateOne(db)({
+        replaceOne(db)({
           _id: id,
-        }, { $set: doc })
+        }, doc)
       )
-      .map((v) => (console.log(v), v))
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         ({ matchedCount, modifiedCount }) => ({
@@ -227,11 +228,11 @@ export function adapter(client) {
   async function queryDocuments({ db, query }) {
     try {
       const m = client.database(db).collection(db);
-      const docs = await m.find(deepSwap("id", "_id", query.selector), {
+      const docs = await m.find(query.selector, {
         ...queryOptions(query),
         noCursorTimeout: undefined,
       }).toArray();
-      return { ok: true, docs: map(swap("_id", "id"), docs) };
+      return { ok: true, docs: map(over(xId, identity), docs) };
     } catch (e) {
       console.log(e);
       return { ok: false, msg: e.message };
@@ -243,8 +244,30 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
 
-  function indexDocuments({ db, name, fields }) {
-    return Promise.reject({ ok: false, status: 501, msg: "Not Implemented!" });
+  async function indexDocuments({ db, name, fields }) {
+    try {
+      const m = client.database(db).collection(db);
+
+      const key = fields.reduce((acc, field) => ({
+        ...acc,
+        [field]: 1, // 1 means an ascending index, -1 for descending
+      }), {});
+
+      // https://docs.mongodb.com/manual/reference/command/createIndexes/#mongodb-dbcommand-dbcmd.createIndexes
+      await m.createIndexes({
+        indexes: [
+          {
+            key,
+            name,
+          },
+        ],
+      });
+
+      return { ok: true };
+    } catch (e) {
+      console.log(e);
+      return { ok: false, msg: e.message };
+    }
   }
 
   /**
@@ -274,7 +297,7 @@ export function adapter(client) {
         noCursorTimeout: undefined,
       }).toArray();
 
-      return { ok: true, docs: map(swap("_id", "id"), docs) };
+      return { ok: true, docs: map(over(xId, identity), docs) };
     } catch (e) {
       console.log("ERROR: ", e.message);
       return { ok: false, msg: e.message };
@@ -295,7 +318,7 @@ export function adapter(client) {
             if (d.insert) {
               return insertOne(db)(d.insert.document);
             } else if (d.replaceOne) {
-              return updateOne(db)(
+              return replaceOne(db)(
                 d.replaceOne.filter,
                 d.replaceOne.replacement,
               );
@@ -309,7 +332,10 @@ export function adapter(client) {
         (e) => ({ ok: false, msg: e.message }),
         (_) => ({
           ok: true,
-          results: map((d) => ({ ok: true, id: d.id }), docs),
+          results: map(
+            (d) => ({ ok: true, id: d.id || d._id, _id: d._id }),
+            docs,
+          ),
         }),
       )
       .toPromise();
