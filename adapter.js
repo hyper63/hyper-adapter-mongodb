@@ -215,7 +215,6 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   async function queryDocuments({ db, query }) {
-    console.log(queryOptions(query))
     try {
       const m = client.database(db).collection(db)
       const docs = await m.find(query.selector, {

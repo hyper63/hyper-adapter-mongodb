@@ -63,25 +63,27 @@ export const queryOptions = ({
        *
        * TL;DR: 1 is ascending, -1 is descending
        */
-      // deno-lint-ignore ban-ts-comment
-      // @ts-ignore
-      ? sort.reduce((acc, cur) => {
-        /**
-         * The default order is ascending, if only the field name is provided
-         */
-        if (typeof cur === 'string') return { ...acc, [cur]: 1 }
-        if (typeof cur === 'object') {
-          const key = Object.keys(cur)[0]
-          return { ...acc, [key]: cur[key] === 'DESC' ? -1 : 1 }
-        }
-        /**
-         * ignore the invalid sort value
-         *
-         * This should never happen because the wrapping zod schema would catch it
-         * but just to be explicit
-         */
-        return acc
-      }, {})
+      ? {
+        // deno-lint-ignore ban-ts-comment
+        // @ts-ignore
+        sort: sort.reduce((acc, cur) => {
+          /**
+           * The default order is ascending, if only the field name is provided
+           */
+          if (typeof cur === 'string') return { ...acc, [cur]: 1 }
+          if (typeof cur === 'object') {
+            const key = Object.keys(cur)[0]
+            return { ...acc, [key]: cur[key] === 'DESC' ? -1 : 1 }
+          }
+          /**
+           * ignore the invalid sort value
+           *
+           * This should never happen because the wrapping zod schema would catch it
+           * but just to be explicit
+           */
+          return acc
+        }, {}),
+      }
       : {}),
   }
 
