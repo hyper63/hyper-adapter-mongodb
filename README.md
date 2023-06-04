@@ -21,9 +21,8 @@
 
 ## Background
 
-mongodb is a NoSQL database that is very popular in the developer ecosystem.
-With this adapter, you will be able to use mongodb as your data store for your
-hyper applications.
+mongodb is a NoSQL database that is very popular in the developer ecosystem. With this adapter, you
+will be able to use mongodb as your data store for your hyper applications.
 
 For more information on MongoDB: https://www.mongodb.com/
 
@@ -32,28 +31,28 @@ For more information on MongoDB: https://www.mongodb.com/
 create `hyper.config.js`
 
 ```js
-import { default as mongo } from "https://x.nest.land/hyper-adapter-mongodb@0.0.1/mod.js";
+import { default as mongo } from 'https://x.nest.land/hyper-adapter-mongodb@0.0.1/mod.js'
 
-const connectionString = Deno.env.get("MONGODB_URL");
+const connectionString = Deno.env.get('MONGODB_URL')
 
 export default {
   app: opine,
   adapter: [
     {
-      port: "data",
+      port: 'data',
       plugins: [mongo(connectionString)],
     },
   ],
-};
+}
 ```
 
 create `mod.js`
 
 ```js
-import core from "https://x.nest.land/hyper@1.3.12/mod.js";
-import config from "./hyper.config.js";
+import core from 'https://x.nest.land/hyper@1.3.12/mod.js'
+import config from './hyper.config.js'
 
-core(config);
+core(config)
 ```
 
 ## Installation

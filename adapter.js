@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-unused-vars
-import { crocks, R } from "./deps.js";
-import { formatDocs, queryOptions } from "./utils.js";
+import { crocks, R } from './deps.js'
+import { formatDocs, queryOptions } from './utils.js'
 
-const { Async, tryCatch, resultToAsync } = crocks;
+const { Async, tryCatch, resultToAsync } = crocks
 const {
   add,
   always,
@@ -15,8 +15,8 @@ const {
   pluck,
   set,
   split,
-} = R;
-const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
+} = R
+const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db))
 
 /**
  * @typedef {Object} CreateDocumentArgs
@@ -60,55 +60,52 @@ const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db));
  */
 
 export function adapter(client) {
-  let dbs = []; // add
-  client.listDatabases().then((r) => dbs = r);
+  let dbs = [] // add
+  client.listDatabases().then((r) => dbs = r)
 
   // TODO: wrap all mongo commands into asyncs
-  const listDatabases = cmd("listDatabases");
-  const insertOne = cmd("insertOne");
-  const drop = cmd("drop");
-  const findOne = cmd("findOne");
-  const replaceOne = cmd("replaceOne");
-  const removeOne = cmd("deleteOne");
+  const listDatabases = cmd('listDatabases')
+  const insertOne = cmd('insertOne')
+  const drop = cmd('drop')
+  const findOne = cmd('findOne')
+  const replaceOne = cmd('replaceOne')
+  const removeOne = cmd('deleteOne')
 
-  const checkIfDbExists = (db) =>
-    (mdb) =>
-      listDatabases(client)()
-        .chain((dbs) =>
-          includes(db, pluck("name", dbs))
-            ? Async.Resolved(mdb)
-            : Async.Rejected({
-              ok: false,
-              status: 400,
-              msg: "Database not found!",
-            })
-        )
-        .map(always(mdb));
+  const checkIfDbExists = (db) => (mdb) =>
+    listDatabases(client)()
+      .chain((dbs) =>
+        includes(db, pluck('name', dbs)) ? Async.Resolved(mdb) : Async.Rejected({
+          ok: false,
+          status: 400,
+          msg: 'Database not found!',
+        })
+      )
+      .map(always(mdb))
 
   /**
    * @param {string} name
    * @returns {Promise<Response>}
    */
   function createDatabase(name) {
-    const result = tryCatch((name) => client.database(name).collection(name));
+    const result = tryCatch((name) => client.database(name).collection(name))
 
     return resultToAsync(result(name))
       .chain((db) =>
         insertOne(db)({
-          _id: "info",
-          type: "_ADMIN",
+          _id: 'info',
+          type: '_ADMIN',
           created: new Date().toISOString(),
         }).map(always(db))
       )
       .chain((db) =>
-        removeOne(db)({ _id: "info" })
+        removeOne(db)({ _id: 'info' })
           .map(always(db))
       )
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         () => ({ ok: true }),
       )
-      .toPromise();
+      .toPromise()
   }
 
   /**
@@ -116,14 +113,14 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function removeDatabase(name) {
-    const db = tryCatch((name) => client.database(name).collection(name));
+    const db = tryCatch((name) => client.database(name).collection(name))
     return resultToAsync(db(name))
       .chain((db) => drop(db)())
       .bimap(
         (e) => ({ ok: false, msg: e.message }),
         always({ ok: true }),
       )
-      .toPromise();
+      .toPromise()
   }
 
   /**
@@ -131,14 +128,14 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function createDocument({ db, id, doc }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db));
+    const getDb = tryCatch((db) => client.database(db).collection(db))
 
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       // if document is empty then return error
       .chain((db) =>
         isEmpty(doc)
-          ? Async.Rejected({ ok: false, status: 400, msg: "Document is empty" })
+          ? Async.Rejected({ ok: false, status: 400, msg: 'Document is empty' })
           : Async.Resolved(db)
       )
       .chain((db) =>
@@ -151,7 +148,7 @@ export function adapter(client) {
             (id) => ({ ok: true, id }),
           )
       )
-      .toPromise();
+      .toPromise()
   }
 
   /**
@@ -159,7 +156,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function retrieveDocument({ db, id }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db));
+    const getDb = tryCatch((db) => client.database(db).collection(db))
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
@@ -170,9 +167,9 @@ export function adapter(client) {
       .chain((doc) =>
         doc !== undefined
           ? Async.Resolved(doc)
-          : Async.Rejected({ ok: false, status: 404, msg: "Not Found!" })
+          : Async.Rejected({ ok: false, status: 404, msg: 'Not Found!' })
       )
-      .toPromise();
+      .toPromise()
   }
 
   /**
@@ -180,7 +177,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function updateDocument({ db, id, doc }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db));
+    const getDb = tryCatch((db) => client.database(db).collection(db))
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
@@ -195,7 +192,7 @@ export function adapter(client) {
           id,
         }),
       )
-      .toPromise();
+      .toPromise()
   }
 
   /**
@@ -203,7 +200,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function removeDocument({ db, id }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db));
+    const getDb = tryCatch((db) => client.database(db).collection(db))
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
@@ -215,7 +212,7 @@ export function adapter(client) {
         (e) => ({ ok: false, msg: e.message }),
         (_) => ({ ok: true, id, msg: _ }),
       )
-      .toPromise();
+      .toPromise()
   }
 
   /**
@@ -224,15 +221,15 @@ export function adapter(client) {
    */
   async function queryDocuments({ db, query }) {
     try {
-      const m = client.database(db).collection(db);
+      const m = client.database(db).collection(db)
       const docs = await m.find(query.selector, {
         ...queryOptions(query),
         noCursorTimeout: undefined,
-      }).toArray();
-      return { ok: true, docs };
+      }).toArray()
+      return { ok: true, docs }
     } catch (e) {
-      console.log(e);
-      return { ok: false, msg: e.message };
+      console.log(e)
+      return { ok: false, msg: e.message }
     }
   }
 
@@ -243,12 +240,12 @@ export function adapter(client) {
 
   async function indexDocuments({ db, name, fields }) {
     try {
-      const m = client.database(db).collection(db);
+      const m = client.database(db).collection(db)
 
       const key = fields.reduce((acc, field) => ({
         ...acc,
         [field]: 1, // 1 means an ascending index, -1 for descending
-      }), {});
+      }), {})
 
       // https://docs.mongodb.com/manual/reference/command/createIndexes/#mongodb-dbcommand-dbcmd.createIndexes
       await m.createIndexes({
@@ -258,12 +255,12 @@ export function adapter(client) {
             name,
           },
         ],
-      });
+      })
 
-      return { ok: true };
+      return { ok: true }
     } catch (e) {
-      console.log(e);
-      return { ok: false, msg: e.message };
+      console.log(e)
+      return { ok: false, msg: e.message }
     }
   }
 
@@ -275,29 +272,25 @@ export function adapter(client) {
     { db, limit, startkey, endkey, keys, descending },
   ) {
     try {
-      let q = {};
-      q = startkey ? set(lensPath(["_id", "$gte"]), startkey, q) : q;
-      q = endkey ? set(lensPath(["_id", "$lte"]), endkey, q) : q;
-      q = keys ? set(lensPath(["_id", "$in"]), split(",", keys), q) : q;
+      let q = {}
+      q = startkey ? set(lensPath(['_id', '$gte']), startkey, q) : q
+      q = endkey ? set(lensPath(['_id', '$lte']), endkey, q) : q
+      q = keys ? set(lensPath(['_id', '$in']), split(',', keys), q) : q
 
-      let options = {};
-      options = limit
-        ? set(lensProp("limit"), Number(limit), options)
-        : options;
-      options = descending
-        ? set(lensProp("sort"), { _id: -1 }, options)
-        : options;
+      let options = {}
+      options = limit ? set(lensProp('limit'), Number(limit), options) : options
+      options = descending ? set(lensProp('sort'), { _id: -1 }, options) : options
 
-      const m = client.database(db).collection(db);
+      const m = client.database(db).collection(db)
       const docs = await m.find(q, {
         ...options,
         noCursorTimeout: undefined,
-      }).toArray();
+      }).toArray()
 
-      return { ok: true, docs };
+      return { ok: true, docs }
     } catch (e) {
-      console.log("ERROR: ", e.message);
-      return { ok: false, msg: e.message };
+      console.log('ERROR: ', e.message)
+      return { ok: false, msg: e.message }
     }
   }
 
@@ -306,21 +299,21 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   function bulkDocuments({ db, docs }) {
-    const getDb = tryCatch((db) => client.database(db).collection(db));
+    const getDb = tryCatch((db) => client.database(db).collection(db))
     return resultToAsync(getDb(db))
       .chain(checkIfDbExists(db))
       .chain((db) =>
         Async.all(
           map((d) => {
             if (d.insert) {
-              return insertOne(db)(d.insert.document);
+              return insertOne(db)(d.insert.document)
             } else if (d.replaceOne) {
               return replaceOne(db)(
                 d.replaceOne.filter,
                 d.replaceOne.replacement,
-              );
+              )
             } else if (d.deleteOne) {
-              return removeOne(db)(d.deleteOne.filter);
+              return removeOne(db)(d.deleteOne.filter)
             }
           }, formatDocs(docs)),
         )
@@ -335,7 +328,7 @@ export function adapter(client) {
           ),
         }),
       )
-      .toPromise();
+      .toPromise()
   }
 
   return Object.freeze({
@@ -349,5 +342,5 @@ export function adapter(client) {
     indexDocuments,
     listDocuments,
     bulkDocuments,
-  });
+  })
 }
