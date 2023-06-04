@@ -6,7 +6,7 @@ const { Async, tryCatch, resultToAsync } = crocks;
 const {
   add,
   always,
-  contains,
+  includes,
   equals,
   isEmpty,
   lensPath,
@@ -75,7 +75,7 @@ export function adapter(client) {
     (mdb) =>
       listDatabases(client)()
         .chain((dbs) =>
-          contains(db, pluck("name", dbs))
+          includes(db, pluck("name", dbs))
             ? Async.Resolved(mdb)
             : Async.Rejected({
               ok: false,
