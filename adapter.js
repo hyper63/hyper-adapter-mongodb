@@ -1,6 +1,5 @@
-// deno-lint-ignore-file no-unused-vars
-import { crocks, R } from './deps.js'
-import { formatDocs, queryOptions } from './utils.js'
+import { crocks, R } from './deps.ts'
+import { formatDocs, queryOptions } from './utils.ts'
 
 const { Async, tryCatch, resultToAsync } = crocks
 const {
@@ -60,10 +59,6 @@ const cmd = (n) => (db) => Async.fromPromise(db[n].bind(db))
  */
 
 export function adapter(client) {
-  let dbs = [] // add
-  client.listDatabases().then((r) => dbs = r)
-
-  // TODO: wrap all mongo commands into asyncs
   const listDatabases = cmd('listDatabases')
   const insertOne = cmd('insertOne')
   const drop = cmd('drop')
@@ -220,6 +215,7 @@ export function adapter(client) {
    * @returns {Promise<Response>}
    */
   async function queryDocuments({ db, query }) {
+    console.log(queryOptions(query))
     try {
       const m = client.database(db).collection(db)
       const docs = await m.find(query.selector, {

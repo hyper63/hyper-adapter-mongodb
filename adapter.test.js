@@ -1,10 +1,9 @@
 import { adapter } from './adapter.js'
-import { assert, assertEquals } from './dev_deps.js'
-import { MongoClient } from './deps.js'
+import { assert, assertEquals, DeprecatedClient } from './dev_deps.ts'
 
 const { test } = Deno
 
-const client = new MongoClient()
+const client = new DeprecatedClient()
 await client.connect('mongodb://127.0.0.1:27017')
 
 const a = adapter(client)
@@ -112,7 +111,7 @@ test('query documents', async () => {
     db: 'hyper~movies',
     query: {
       selector: { year: { $lt: '1979' } },
-      fields: ['title', 'year'],
+      fields: ['_id', 'title', 'year'],
       sort: [{ title: 'DESC' }, { year: 'DESC' }],
     },
   })
