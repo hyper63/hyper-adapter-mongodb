@@ -7,4 +7,4 @@ tasks:
 
   - name: Setup Git Hooks
     init: git config core.hooksPath .hooks
-    command: ./scripts/test.sh
+    command: deno task test

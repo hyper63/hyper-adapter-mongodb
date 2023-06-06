@@ -618,6 +618,7 @@
     "https://cdn.skypack.dev/error/unknown:ts-toolbelt?from=ramda": "9adffad52875ea5b664461a736b488fcb08a5b4b971c8c598d63c0a499c3daff",
     "https://cdn.skypack.dev/ramda@0.28.0": "ac1e3c64a2a3491971bee55f88faeb0923023e903d3ad125f1bd8044b4cad03e",
     "https://cdn.skypack.dev/ramda@0.28.0?dts": "ac1e3c64a2a3491971bee55f88faeb0923023e903d3ad125f1bd8044b4cad03e",
+    "https://cdn.skypack.dev/ramda@0.29.0": "58d3aec92683f33d6d780ff5619ec2fe5cfafd016bf9b6d8190be173b0d9426a",
     "https://cdn.skypack.dev/ramda@^0.29.0?dts": "58d3aec92683f33d6d780ff5619ec2fe5cfafd016bf9b6d8190be173b0d9426a",
     "https://deno.land/std@0.118.0/_util/assert.ts": "2f868145a042a11d5ad0a3c748dcf580add8a0dbc0e876eaa0026303a5488f58",
     "https://deno.land/std@0.118.0/_wasm_crypto/crypto.js": "1c565287b35f6eb1aa58499d0f4fbac99a9c30eb9a735c512d193a6493499e84",
@@ -778,7 +779,8 @@
     "https://raw.githubusercontent.com/hyper63/hyper/hyper-port-storage%40v2.0.1/packages/port-storage/deps.ts": "a76d4fdba3f1437e839aebb1f9c4b678491022abbd6caedf6378b4bc701e7988",
     "https://raw.githubusercontent.com/hyper63/hyper/hyper-port-storage%40v2.0.1/packages/port-storage/mod.ts": "8ea15ac837b87684634b439c8dcd4a93cb390cb9d57901d56c26b2204db8045e",
     "https://raw.githubusercontent.com/hyper63/hyper/hyper-port-storage%40v2.0.1/packages/port-storage/port.ts": "030875a500e069f0c71409c021dca62f2cb8f5ffd710573351ae2727d749cd2c",
-    "https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.0/packages/utils/hyper-err.js": "434ce4bd1cc58e220aad95148bfb04ad7c43738cb5f771a02a45ea8608ac71cc"
+    "https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.0/packages/utils/hyper-err.js": "434ce4bd1cc58e220aad95148bfb04ad7c43738cb5f771a02a45ea8608ac71cc",
+    "https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.1/packages/utils/hyper-err.js": "19d894e770cc1bc1fbe3e2e31ab0186c2440a84b302dd57c1f2bc9a4dbbe7502"
   },
   "npm": {
     "specifiers": {

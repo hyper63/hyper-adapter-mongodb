@@ -80,8 +80,8 @@ export class Async<RootLeft, RootRight> implements Sum<RootLeft, RootRight> {
     fn: VariadicFunction<V, Promise<R>>,
   ): VariadicFunction<V, Async<L, R>>
   static of<V>(val: V): Async<void, V>
-  static Rejected<V>(val: V): Async<V, void>
-  static Resolved<V>(val: V): Async<void, V>
+  static Rejected<V, R>(val: V): Async<V, R | void>
+  static Resolved<V, L>(val: V): Async<L | void, V>
 }
 
 /**

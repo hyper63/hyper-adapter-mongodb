@@ -1,7 +1,15 @@
-import type { AuthOptions, Document, MongoCollectionClient } from '../types.ts'
+import { HyperErr } from 'https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.1/packages/utils/hyper-err.js'
 import { EJSON } from '../deps.ts'
+import type { AuthOptions, Document } from '../types.ts'
 
-export class MongoClient {
+import type {
+  BulkOperation,
+  MongoCollectionClient,
+  MongoDatabaseClient,
+  MongoInstanceClient,
+} from './types.ts'
+
+export class MongoClient implements MongoInstanceClient {
   dataSource: string
   endpoint: string
   fetch = fetch
@@ -37,18 +45,33 @@ export class MongoClient {
     }
   }
 
-  database(name: string) {
+  db(name: string) {
     return new Database(name, this)
   }
 }
 
-export class Database {
+export class Database implements MongoDatabaseClient {
   name: string
   client: MongoClient
 
   constructor(name: string, client: MongoClient) {
     this.name = name
     this.client = client
+  }
+
+  createIndex(): Promise<string> {
+    throw HyperErr({
+      status: 501,
+      msg: 'Atlas Data API does not expose creating indexes. Create indexes via the Atlas Console',
+    })
+  }
+
+  drop(): Promise<boolean> {
+    throw HyperErr({
+      status: 501,
+      msg:
+        'Atlas Data API does not expose dropping a database. Drop databases via the Atlas Console',
+    })
   }
 
   collection<T extends Document = Document>(name: string) {
@@ -85,7 +108,7 @@ export class Collection<T extends Document> implements MongoCollectionClient<T> 
       filter,
       projection,
     })
-    return result.document
+    return result.document ? result.document : null
   }
 
   async find(
@@ -106,7 +129,7 @@ export class Collection<T extends Document> implements MongoCollectionClient<T> 
       filter,
       projection,
       sort,
-      limit,
+      limit: limit || 25,
       skip,
     })
     return result.documents
@@ -134,6 +157,14 @@ export class Collection<T extends Document> implements MongoCollectionClient<T> 
 
   deleteMany(filter: Document) {
     return this.api<{ deletedCount: number }>('deleteMany', { filter })
+  }
+
+  /**
+   * TODO: need to check if this actually works on Atlas data
+   */
+  async bulk(operations: BulkOperation[]): Promise<boolean> {
+    const _result = await this.api('bulkWrite', { operations })
+    return true
   }
 
   async aggregate<T = Document>(pipeline: Document[]) {
