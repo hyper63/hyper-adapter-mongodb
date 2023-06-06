@@ -1,8 +1,8 @@
 import { assert, assertRejects, dataPort, pluginFactory } from './dev_deps.ts'
 
-import { MongoClient as AtlasClient } from './clients/atlas.ts'
-
+import { AtlasClient } from './clients/atlas.ts'
 import factory from './mod.ts'
+import { MetaDb } from './meta.ts'
 
 Deno.test('mod', async (t) => {
   const happy = {
@@ -21,8 +21,10 @@ Deno.test('mod', async (t) => {
   })
 
   await t.step('load', async (t) => {
-    await t.step('should construct an Atlas Data client', async () => {
-      assert((await factory(happy).load()) instanceof AtlasClient)
+    await t.step('should construct an Atlas Data client and MetaDb client', async () => {
+      const { client, meta } = await factory(happy).load()
+      assert(client instanceof AtlasClient)
+      assert(meta instanceof MetaDb)
     })
 
     await t.step('should throw if the provided url is not valid', async () => {

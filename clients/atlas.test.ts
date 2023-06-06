@@ -1,7 +1,6 @@
-import { assertObjectMatch } from 'https://deno.land/std@0.190.0/testing/asserts.ts'
-import { assertEquals, assertThrows, deferred } from '../dev_deps.ts'
+import { assertEquals, assertObjectMatch, assertThrows, deferred } from '../dev_deps.ts'
 
-import { MongoClient } from './atlas.ts'
+import { AtlasClient } from './atlas.ts'
 
 Deno.test('client - atlas', async (t) => {
   let fetchMock = deferred<{ url: string; init: RequestInit }>()
@@ -22,7 +21,7 @@ Deno.test('client - atlas', async (t) => {
   }
 
   await t.step('should append the method to the url', async () => {
-    const client = new MongoClient(happy)
+    const client = new AtlasClient(happy)
     fetchMock = deferred<{ url: string; init: RequestInit }>()
 
     await client
@@ -40,7 +39,7 @@ Deno.test('client - atlas', async (t) => {
 
   await t.step('should append the headers to the request', async (t) => {
     await t.step('Content-Type and Accept', async () => {
-      const client = new MongoClient(happy)
+      const client = new AtlasClient(happy)
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
@@ -57,7 +56,7 @@ Deno.test('client - atlas', async (t) => {
 
     await t.step('auth', async (t) => {
       await t.step('api-key', async () => {
-        const client = new MongoClient(happy)
+        const client = new AtlasClient(happy)
         fetchMock = deferred<{ url: string; init: RequestInit }>()
 
         await client
@@ -72,7 +71,7 @@ Deno.test('client - atlas', async (t) => {
       })
 
       await t.step('jwtTokenString', async () => {
-        const client = new MongoClient({
+        const client = new AtlasClient({
           ...happy,
           auth: { jwtTokenString: 'foobar' },
         })
@@ -90,7 +89,7 @@ Deno.test('client - atlas', async (t) => {
       })
 
       await t.step('email and password', async () => {
-        const client = new MongoClient({
+        const client = new AtlasClient({
           ...happy,
           auth: { email: 'foo@bar.com', password: 'secret' },
         })
@@ -112,7 +111,7 @@ Deno.test('client - atlas', async (t) => {
 
   await t.step('should append the body to the request', async (t) => {
     await t.step('database, collection, and dataSource', async () => {
-      const client = new MongoClient(happy)
+      const client = new AtlasClient(happy)
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
@@ -130,7 +129,7 @@ Deno.test('client - atlas', async (t) => {
     })
 
     await t.step('options', async () => {
-      const client = new MongoClient(happy)
+      const client = new AtlasClient(happy)
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
@@ -150,6 +149,6 @@ Deno.test('client - atlas', async (t) => {
   await t.step('should throw if credentials are not provided', () => {
     // deno-lint-ignore ban-ts-comment
     // @ts-expect-error
-    assertThrows(() => new MongoClient({ ...happy, auth: {} }))
+    assertThrows(() => new AtlasClient({ ...happy, auth: {} }))
   })
 })
