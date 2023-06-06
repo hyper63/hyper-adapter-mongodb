@@ -9,7 +9,7 @@ import type {
   MongoInstanceClient,
 } from './types.ts'
 
-export class MongoClient implements MongoInstanceClient {
+export class AtlasClient implements MongoInstanceClient {
   dataSource: string
   endpoint: string
   fetch = fetch
@@ -52,9 +52,9 @@ export class MongoClient implements MongoInstanceClient {
 
 export class Database implements MongoDatabaseClient {
   name: string
-  client: MongoClient
+  client: AtlasClient
 
-  constructor(name: string, client: MongoClient) {
+  constructor(name: string, client: AtlasClient) {
     this.name = name
     this.client = client
   }
@@ -82,7 +82,7 @@ export class Database implements MongoDatabaseClient {
 export class Collection<T extends Document> implements MongoCollectionClient<T> {
   name: string
   database: Database
-  client: MongoClient
+  client: AtlasClient
 
   constructor(name: string, database: Database) {
     this.name = name

@@ -1,20 +1,27 @@
-import { R } from './deps.ts'
+import { HyperErr } from 'https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.1/packages/utils/hyper-err.js'
+import { crocks, isHyperErr, R } from './deps.ts'
 
-const { map, omit } = R
+const { map, omit, ifElse } = R
+const { Async } = crocks
+
+export const handleHyperErr = ifElse(
+  isHyperErr,
+  Async.Resolved,
+  Async.Rejected,
+)
 
 export const formatDocs = map(
   (d: Record<string, unknown> & { _deleted?: boolean; _update?: boolean }) => {
     if (d._deleted) {
       return { deleteOne: { filter: { _id: d._id } } }
-    } else if (d._update) {
+    } else {
       return {
         replaceOne: {
           filter: { _id: d._id },
           replacement: omit(['_update'], d),
+          upsert: true,
         },
       }
-    } else {
-      return { insert: { document: d } }
     }
   },
 )
@@ -55,37 +62,49 @@ export const queryOptions = ({
         ),
       }
       : {}),
-    ...(sort
-      /**
-       * Map the hyper sort syntax to the mongo sort syntax
-       *
-       * See https://www.mongodb.com/docs/manual/reference/operator/aggregation/sort/
-       *
-       * TL;DR: 1 is ascending, -1 is descending
-       */
-      ? {
-        // deno-lint-ignore ban-ts-comment
-        // @ts-ignore
-        sort: sort.reduce((acc, cur) => {
-          /**
-           * The default order is ascending, if only the field name is provided
-           */
-          if (typeof cur === 'string') return { ...acc, [cur]: 1 }
-          if (typeof cur === 'object') {
-            const key = Object.keys(cur)[0]
-            return { ...acc, [key]: cur[key] === 'DESC' ? -1 : 1 }
-          }
-          /**
-           * ignore the invalid sort value
-           *
-           * This should never happen because the wrapping zod schema would catch it
-           * but just to be explicit
-           */
-          return acc
-        }, {}),
-      }
-      : {}),
+    ...(sort ? { sort: mapSort(sort) } : {}),
   }
 
   return options
+}
+
+/**
+ * Map the hyper sort syntax to the mongo sort syntax
+ *
+ * See https://www.mongodb.com/docs/manual/reference/operator/aggregation/sort/
+ *
+ * TL;DR: 1 is ascending, -1 is descending
+ */
+export const mapSort = (
+  sort: string[] | { [field: string]: 'ASC' | 'DESC' }[],
+) => {
+  if (!sort || !sort.length) return sort
+
+  // deno-lint-ignore ban-ts-comment
+  // @ts-ignore
+  return sort.reduce((acc, cur) => {
+    /**
+     * The default order is ascending, if only the field name is provided
+     */
+    if (typeof cur === 'string') return { ...acc, [cur]: 1 }
+    if (typeof cur === 'object') {
+      const key = Object.keys(cur)[0]
+      return { ...acc, [key]: cur[key] === 'DESC' ? -1 : 1 }
+    }
+    /**
+     * ignore the invalid sort value
+     *
+     * This should never happen because the wrapping zod schema would catch it
+     * but just to be explicit
+     */
+    return acc
+  }, {} as { [field: string]: 1 | -1 })
+}
+
+export const toHyperErr = (err: unknown) => {
+  if (isHyperErr(err)) return err
+
+  // TODO: map mongo errors to hyper errors
+  // deno-lint-ignore no-explicit-any
+  return HyperErr({ status: 400, msg: (err as any).message })
 }

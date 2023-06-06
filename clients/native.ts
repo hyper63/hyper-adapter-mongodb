@@ -1,4 +1,4 @@
-import { type Collection as NativeCollection, MongoClient as NativeClient } from '../deps.ts'
+import { type Collection as NativeCollection, MongoClient } from '../deps.ts'
 import type { Document } from '../types.ts'
 
 import {
@@ -8,11 +8,11 @@ import {
   MongoInstanceClient,
 } from './types.ts'
 
-export class MongoClient implements MongoInstanceClient {
-  private nativeClient: NativeClient
+export class NativeClient implements MongoInstanceClient {
+  private nativeClient: MongoClient
 
   constructor({ url }: { url: string }) {
-    this.nativeClient = new NativeClient(url)
+    this.nativeClient = new MongoClient(url)
   }
 
   connect() {

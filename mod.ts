@@ -1,10 +1,12 @@
 import type { AdapterConfig } from './types.ts'
 import PORT_NAME from './port_name.ts'
 
-import { MongoClient as AtlasClient } from './clients/atlas.ts'
-import { MongoClient as NativeClient } from './clients/native.ts'
+import { AtlasClient } from './clients/atlas.ts'
+import { NativeClient } from './clients/native.ts'
+import type { MongoInstanceClient } from './clients/types.ts'
 
-import { adapter } from './adapter.js'
+import { adapter } from './adapter.ts'
+import { MetaDb } from './meta.ts'
 
 const isNative = (url: URL) => /^mongodb/.test(url.protocol)
 const isAtlas = (url: URL) => /^https/.test(url.protocol)
@@ -17,7 +19,7 @@ export default (config: AdapterConfig) => ({
     let client: NativeClient | AtlasClient
 
     if (isNative(url)) {
-      client = new NativeClient(config.url)
+      client = new NativeClient({ url: config.url })
       await client.connect()
     } else if (isAtlas(url)) {
       if (!config.options?.atlas) {
@@ -36,7 +38,13 @@ export default (config: AdapterConfig) => ({
       )
     }
 
-    return Promise.resolve(client)
+    return Promise.resolve({
+      client,
+      meta: new MetaDb({
+        client,
+        metaDbName: 'meta-cl1ld3td500003e68rc2f8o6x',
+      }),
+    })
   }, // load env
-  link: (env: NativeClient | AtlasClient) => (_: unknown) => adapter(env), // link adapter
+  link: (env: { client: MongoInstanceClient; meta: MetaDb }) => (_: unknown) => adapter(env), // link adapter
 })
