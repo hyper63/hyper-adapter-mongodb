@@ -26,7 +26,7 @@ Deno.test('client - atlas', async (t) => {
     fetchMock = deferred<{ url: string; init: RequestInit }>()
 
     await client
-      .database('db')
+      .db('db')
       .collection('default')
       .findOne({ foo: 'bar' })
       .then(async () => {
@@ -44,7 +44,7 @@ Deno.test('client - atlas', async (t) => {
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
-        .database('db')
+        .db('db')
         .collection('default')
         .findOne({ foo: 'bar' })
         .then(async () => {
@@ -61,7 +61,7 @@ Deno.test('client - atlas', async (t) => {
         fetchMock = deferred<{ url: string; init: RequestInit }>()
 
         await client
-          .database('db')
+          .db('db')
           .collection('default')
           .findOne({ foo: 'bar' })
           .then(async () => {
@@ -79,7 +79,7 @@ Deno.test('client - atlas', async (t) => {
         fetchMock = deferred<{ url: string; init: RequestInit }>()
 
         await client
-          .database('db')
+          .db('db')
           .collection('default')
           .findOne({ foo: 'bar' })
           .then(async () => {
@@ -97,7 +97,7 @@ Deno.test('client - atlas', async (t) => {
         fetchMock = deferred<{ url: string; init: RequestInit }>()
 
         await client
-          .database('db')
+          .db('db')
           .collection('default')
           .findOne({ foo: 'bar' })
           .then(async () => {
@@ -116,7 +116,7 @@ Deno.test('client - atlas', async (t) => {
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
-        .database('db')
+        .db('db')
         .collection('default')
         .findOne({ foo: 'bar' }, { projection: { foo: 1, _id: 0 } })
         .then(async () => {
@@ -134,7 +134,7 @@ Deno.test('client - atlas', async (t) => {
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
-        .database('db')
+        .db('db')
         .collection('default')
         .findOne({ foo: 'bar' }, { projection: { foo: 1, _id: 0 } })
         .then(async () => {
