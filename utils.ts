@@ -1,5 +1,4 @@
-import { HyperErr } from 'https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.1/packages/utils/hyper-err.js'
-import { crocks, isHyperErr, R } from './deps.ts'
+import { crocks, HyperErr, isHyperErr, R } from './deps.ts'
 
 const { map, omit, ifElse } = R
 const { Async } = crocks
@@ -10,7 +9,7 @@ export const handleHyperErr = ifElse(
   Async.Rejected,
 )
 
-export const formatDocs = map(
+export const toBulkOperations = map(
   (d: Record<string, unknown> & { _deleted?: boolean; _update?: boolean }) => {
     if (d._deleted) {
       return { deleteOne: { filter: { _id: d._id } } }
@@ -31,7 +30,7 @@ export const queryOptions = ({
   fields,
   sort,
 }: {
-  limit?: number
+  limit?: number | string
   fields?: string[]
   sort?: string[] | { [field: string]: 'ASC' | 'DESC' }[]
 }) => {
