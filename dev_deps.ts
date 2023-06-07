@@ -10,6 +10,3 @@ export {
   assertRejects,
   assertThrows,
 } from 'https://deno.land/std@0.190.0/testing/asserts.ts'
-
-// TODO: remove in lieu of npm client
-export { MongoClient as DeprecatedClient } from 'https://deno.land/x/mongo@v0.29.0/mod.ts'
