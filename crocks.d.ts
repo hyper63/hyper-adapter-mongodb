@@ -74,7 +74,7 @@ export class Async<RootLeft, RootRight> implements Sum<RootLeft, RootRight> {
     cancel?: NullaryFunction<void>,
   ): void
 
-  toPromise(): Promise<RootLeft>
+  toPromise(): Promise<RootRight>
 
   static fromPromise<V, R, L>(
     fn: VariadicFunction<V, Promise<R>>,
