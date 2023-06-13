@@ -293,7 +293,7 @@ export function adapter({
     name: string
     fields: string[] | { [field: string]: 'ASC' | 'DESC' }[]
   }) {
-    meta
+    return meta
       .get(db)
       .chain(() =>
         $database(db)
