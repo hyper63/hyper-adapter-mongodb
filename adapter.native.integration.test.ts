@@ -5,10 +5,12 @@ import { suite } from './test/suite.ts'
 Deno.test({
   name: 'Mongo Adapter Test Suite - NativeClient',
   fn: async (t) => {
-    const client = new NativeClient({
-      url: Deno.env.get('MONGO_URL') || 'mongodb://127.0.0.1:27017',
-    })
+    const url = Deno.env.get('MONGO_URL')
+    if (!url) {
+      throw new Error('MongoDB connection string is required at MONGO_URL')
+    }
 
+    const client = new NativeClient({ url })
     await suite(t)(client, { shouldBaseLine: true })
   },
   /**

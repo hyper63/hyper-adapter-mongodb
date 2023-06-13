@@ -16,6 +16,26 @@ jobs:
     strategy:
       matrix:
         deno-version: [1.x]
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🦕 Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
+
+      - name: ⚡ Run Tests
+        run: |
+          deno task test
+        env:
+          CI: true
+
+  test-native-integration-self-hosted:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deno-version: [1.x]
         mongodb-version: [6]
     steps:
       - name: ⬇️ Checkout repo
@@ -31,15 +51,39 @@ jobs:
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
 
-      - name: ⚡ Run Tests
+      - name: ⚡ Run Native Integration Tests
         run: |
-          deno task test
+          deno task test:integration-native
         env:
           CI: true
+          MONGO_URL: mongodb://127.0.0.1:27017
+
+  test-native-integration-atlas:
+    # Skip for now until the integration suite is done
+    if: false 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deno-version: [1.x]
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🦕 Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
+
+      - name: ⚡ Run Native Integration Tests (Atlas 🧭)
+        run: |
+          deno task test:integration-native
+        env:
+          CI: true
+          MONGO_URL: ${{ secrets.INTEGRATION_ATLAS_MONGO_URL }}
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [test]
+    needs: [test, test-native-integration-self-hosted, test-native-integration-atlas]
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
