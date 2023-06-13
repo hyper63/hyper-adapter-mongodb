@@ -7,4 +7,6 @@ tasks:
 
   - name: Setup Git Hooks
     init: git config core.hooksPath .hooks
-    command: deno task test
+    command: |
+      export MONGO_URL=mongodb://127.0.0.1:27017
+      deno task test
