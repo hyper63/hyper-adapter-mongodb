@@ -34,6 +34,12 @@ export const queryOptions = ({
   fields?: string[]
   sort?: string[] | { [field: string]: 'ASC' | 'DESC' }[]
 }) => {
+  /**
+   * Notice use_index is not mapped here, as MongoDB
+   * internally chooses an index to use.
+   *
+   * So use_index is effectively ignored
+   */
   const options: {
     limit?: number
     projection?: { [field: string]: 0 | 1 }

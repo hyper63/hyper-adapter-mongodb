@@ -389,11 +389,69 @@ async (
   })
 
   await t.step('indexDocuments', async (t) => {
-    await t.step('should create the index', async () => {})
+    await t.step('should create the index', async () => {
+      await a.createDatabase(DB)
+
+      await a.createDocument({
+        db: DB,
+        id: '10-caddyshack',
+        doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '12-ghostbusters',
+        doc: { title: 'Ghostbusters', year: '1980', genre: ['comedy'] },
+      })
+
+      const res = await a.indexDocuments({
+        db: DB,
+        name: 'idx-title-year',
+        fields: ['title', 'year'],
+      })
+
+      assertObjectMatch(res as any, { ok: true })
+
+      await a.removeDatabase(DB)
+    })
+
+    await t.step('should create the index with obj fields', async () => {
+      await a.createDatabase(DB)
+
+      await a.createDocument({
+        db: DB,
+        id: '10-caddyshack',
+        doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '12-ghostbusters',
+        doc: { title: 'Ghostbusters', year: '1980', genre: ['comedy'] },
+      })
+
+      const res = await a.indexDocuments({
+        db: DB,
+        name: 'idx-title-year',
+        fields: [{ title: 'DESC' }, { year: 'ASC' }],
+      })
+
+      assertObjectMatch(res as any, { ok: true })
+
+      await a.removeDatabase(DB)
+    })
 
     await t.step(
       'should return a HyperErr(404) if the database does not exist',
-      async () => {},
+      async () => {
+        const res = await a.indexDocuments({
+          db: DB,
+          name: 'idx-title-year',
+          fields: [{ title: 'DESC' }, { year: 'ASC' }],
+        })
+
+        assertObjectMatch(res as any, { ok: false, status: 404 })
+      },
     )
   })
 
