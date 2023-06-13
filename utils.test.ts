@@ -2,7 +2,8 @@ import { HyperErr } from 'https://raw.githubusercontent.com/hyper63/hyper/hyper-
 import { isHyperErr } from './deps.ts'
 import { assert, assertEquals } from './dev_deps.ts'
 
-import { mapSort, queryOptions, toBulkOperations, toHyperErr } from './utils.ts'
+import { mapSort, mongoErrToHyperErr, queryOptions, toBulkOperations } from './utils.ts'
+import { assertObjectMatch } from 'https://deno.land/std@0.190.0/testing/asserts.ts'
 
 Deno.test('utils', async (t) => {
   await t.step('toBulkOperations', async (t) => {
@@ -20,24 +21,27 @@ Deno.test('utils', async (t) => {
       assertEquals(d2, { deleteOne: { filter: { _id: 'dsfasdf' } } })
     })
 
-    await t.step('should map upserts to replaceOne operation with upsert flag', () => {
-      const [/* */, create1, /* */, update2] = toBulkOperations(bulk)
+    await t.step(
+      'should map upserts to replaceOne operation with upsert flag',
+      () => {
+        const [, /* */ create1, /* */, update2] = toBulkOperations(bulk)
 
-      assertEquals(create1, {
-        replaceOne: {
-          filter: { _id: '4567' },
-          replacement: { _id: '4567', foo: 'bar' },
-          upsert: true,
-        },
-      })
-      assertEquals(update2, {
-        replaceOne: {
-          filter: { _id: '1111' },
-          replacement: { _id: '1111', fizz: 'buzz' },
-          upsert: true,
-        },
-      })
-    })
+        assertEquals(create1, {
+          replaceOne: {
+            filter: { _id: '4567' },
+            replacement: { _id: '4567', foo: 'bar' },
+            upsert: true,
+          },
+        })
+        assertEquals(update2, {
+          replaceOne: {
+            filter: { _id: '1111' },
+            replacement: { _id: '1111', fizz: 'buzz' },
+            upsert: true,
+          },
+        })
+      },
+    )
   })
 
   await t.step('queryOptions', async (t) => {
@@ -74,11 +78,29 @@ Deno.test('utils', async (t) => {
     })
   })
 
-  await t.step('toHyperErr', async (t) => {
+  await t.step('mongoErrToHyperErr', async (t) => {
     await t.step('should return the HyperErr provided', () => {
-      assert(isHyperErr(toHyperErr(HyperErr({ status: 404, msg: 'oops' }))))
+      assert(
+        isHyperErr(
+          mongoErrToHyperErr({ subject: 'document with _id foobar' })(
+            HyperErr({ status: 404, msg: 'oops' }),
+          ),
+        ),
+      )
     })
 
-    // TODO: add mongo error mapping tests
+    await t.step('should map the MongoDB error based on code', async (t) => {
+      await t.step('conflict', () => {
+        assertObjectMatch(
+          mongoErrToHyperErr({ subject: 'document with _id foobar' })({
+            code: 11000,
+            message: 'mongo error',
+          }),
+          { status: 409, msg: 'document with _id foobar already exists' },
+        )
+      })
+
+      // TODO: add more mappings
+    })
   })
 })

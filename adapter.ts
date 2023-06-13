@@ -1,10 +1,16 @@
 import type { MongoInstanceClient } from './clients/types.ts'
 import { crocks, HyperErr, R } from './deps.ts'
-import { handleHyperErr, mapSort, queryOptions, toBulkOperations, toHyperErr } from './utils.ts'
+import {
+  handleHyperErr,
+  mapSort,
+  mongoErrToHyperErr,
+  queryOptions,
+  toBulkOperations,
+} from './utils.ts'
 import { MetaDb } from './meta.ts'
 
 const { Async } = crocks
-const { always, isEmpty, lensPath, set, split } = R
+const { always, isEmpty, lensPath, set, split, identity } = R
 
 /**
  * @typedef {Object} CreateDocumentArgs
@@ -73,15 +79,15 @@ export function adapter({
    * @param {string} name
    */
   function createDatabase(name: string) {
-    /**
-     * Add a document, then immediately remove it
-     * so that the empty database and collection is implcitly created
-     */
     return meta
       .get(name)
       .bichain(
         // DB DNE, so create it
         () =>
+          /**
+           * Add a document, then immediately remove it
+           * so that the empty database and collection is implcitly created
+           */
           Async.of($database(name)).chain(($db) =>
             $db
               .insertOne({
@@ -94,7 +100,13 @@ export function adapter({
                * Make sure to persist metadata on the db
                */
               .chain(() => meta.create(name))
-              .map(always({ ok: true }))
+              .bimap(
+                mongoErrToHyperErr({
+                  subject: `database ${name}`,
+                  db: `database ${name}`,
+                }),
+                always({ ok: true }),
+              )
           ),
         // Already exists, so return a HyperErr(409)
         () =>
@@ -114,7 +126,13 @@ export function adapter({
       .get(name)
       .chain(() => $database(name).dropDatabase())
       .chain(() => meta.remove(name))
-      .map(always({ ok: true }))
+      .bimap(
+        mongoErrToHyperErr({
+          subject: `database ${name}`,
+          db: `database ${name}`,
+        }),
+        always({ ok: true }),
+      )
       .bichain(handleHyperErr, Async.Resolved)
       .toPromise()
   }
@@ -136,9 +154,17 @@ export function adapter({
       .chain(() =>
         isEmpty(doc)
           ? Async.Rejected(HyperErr({ status: 400, msg: 'document empty' }))
-          : $database(db)
-            .insertOne({ ...doc, _id: id })
-            .bimap(toHyperErr, always({ ok: true, id }))
+          : Async.of({ ...doc, _id: id }).chain((docWithId) =>
+            $database(db)
+              .insertOne(docWithId)
+              .bimap(
+                mongoErrToHyperErr({
+                  subject: `document with _id ${id}`,
+                  db: `database`,
+                }),
+                always({ ok: true, id: docWithId._id }),
+              )
+          )
       )
       .bichain(handleHyperErr, Async.Resolved)
       .toPromise()
@@ -152,9 +178,19 @@ export function adapter({
       .get(db)
       .chain(() => $database(db).findOne({ _id: id }))
       .chain((doc) =>
-        doc !== undefined
-          ? Async.Resolved(doc)
-          : Async.Rejected({ ok: false, status: 404, msg: 'Not Found!' })
+        doc ? Async.Resolved(doc) : Async.Rejected(
+          HyperErr({
+            status: 404,
+            msg: `document with _id ${id} does not exist`,
+          }),
+        )
+      )
+      .bimap(
+        mongoErrToHyperErr({
+          subject: `document with _id ${id}`,
+          db: `database`,
+        }),
+        identity,
       )
       .bichain(handleHyperErr, Async.Resolved)
       .toPromise()
@@ -177,16 +213,21 @@ export function adapter({
       .get(db)
       .chain(() =>
         $database(db)
-          .replaceOne({ _id: id }, doc)
+          .replaceOne({ _id: id }, doc, { upsert: true })
+          .chain(({ matchedCount, modifiedCount }) =>
+            matchedCount + modifiedCount === 2 ? Async.Resolved({ ok: true, id }) : Async.Rejected(
+              HyperErr({
+                status: 404,
+                msg: `Could not update document with _id ${id}`,
+              }),
+            )
+          )
           .bimap(
-            /**
-             * TODO: properly map based on server response
-             */
-            toHyperErr,
-            ({ matchedCount, modifiedCount }) => ({
-              ok: matchedCount + modifiedCount === 2,
-              id,
+            mongoErrToHyperErr({
+              subject: `document with _id ${id}`,
+              db: `database`,
             }),
+            identity,
           )
       )
       .bichain(handleHyperErr, Async.Resolved)
@@ -202,13 +243,20 @@ export function adapter({
       .chain(() =>
         $database(db)
           .removeOne({ _id: id })
+          .chain(({ deletedCount }) =>
+            deletedCount === 1 ? Async.Resolved({ ok: true, id }) : Async.Rejected(
+              HyperErr({
+                status: 404,
+                msg: `document with _id ${id} does not exist`,
+              }),
+            )
+          )
           .bimap(
-            /**
-             * TODO: properly map based on server response
-             */
-            // deno-lint-ignore no-explicit-any
-            (e: any) => HyperErr({ status: 400, msg: e.message }),
-            (_) => ({ ok: true, id }),
+            mongoErrToHyperErr({
+              subject: `document with _id ${id}`,
+              db: `database`,
+            }),
+            identity,
           )
       )
       .bichain(handleHyperErr, Async.Resolved)
@@ -250,7 +298,13 @@ export function adapter({
       .chain(() =>
         $database(db)
           .createIndex({ name, spec: mapSort(fields) })
-          .bimap(toHyperErr, always({ ok: true }))
+          .bimap(
+            mongoErrToHyperErr({
+              subject: `index with fields ${fields.join(', ')}`,
+              db: `database`,
+            }),
+            always({ ok: true }),
+          )
       )
       .bichain(handleHyperErr, Async.Resolved)
       .toPromise()
@@ -288,7 +342,13 @@ export function adapter({
       .chain(() =>
         $database(db)
           .find(q, { ...options })
-          .map((docs) => ({ ok: true, docs }))
+          .bimap(
+            mongoErrToHyperErr({
+              subject: `database`,
+              db: `database`,
+            }),
+            (docs) => ({ ok: true, docs }),
+          )
       )
       .bichain(handleHyperErr, Async.Resolved)
       .toPromise()
@@ -309,13 +369,19 @@ export function adapter({
       .chain(() =>
         $database(db)
           .bulk(toBulkOperations(docs))
-          .bimap(toHyperErr, () => ({
-            ok: true,
-            /**
-             * Map response from Mongo to actual ids returned here
-             */
-            results: docs.map((d) => ({ ok: true, id: d._id })),
-          }))
+          .bimap(
+            mongoErrToHyperErr({
+              subject: `docs with ids ${docs.map((d) => d._id)}`,
+              db: `database`,
+            }),
+            () => ({
+              ok: true,
+              /**
+               * Map response from Mongo to actual ids returned here
+               */
+              results: docs.map((d) => ({ ok: true, id: d._id })),
+            }),
+          )
       )
       .bichain(handleHyperErr, Async.Resolved)
       .toPromise()

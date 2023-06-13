@@ -1,6 +1,6 @@
 import { crocks, HyperErr, isHyperErr, R } from './deps.ts'
 
-const { map, omit, ifElse } = R
+const { map, omit, ifElse, evolve, applyTo, propOr } = R
 const { Async } = crocks
 
 export const handleHyperErr = ifElse(
@@ -100,10 +100,60 @@ export const mapSort = (
   }, {} as { [field: string]: 1 | -1 })
 }
 
-export const toHyperErr = (err: unknown) => {
-  if (isHyperErr(err)) return err
+/**
+ * Generate string templates using named keys
+ * to pull values from a provided dictionary
+ */
+const template =
+  (strings: TemplateStringsArray, ...keys: string[]) => (dict: Record<string, string>) => {
+    const result = [strings[0]]
+    keys.forEach((key, i) => {
+      result.push(dict[key], strings[i + 1])
+    })
+    return result.join('')
+  }
 
-  // TODO: map mongo errors to hyper errors
+export const mongoErrToHyperErr =
   // deno-lint-ignore no-explicit-any
-  return HyperErr({ status: 400, msg: (err as any).message })
-}
+  (context: Record<string, string>) => (mongoErr: any) => {
+    if (isHyperErr(mongoErr)) return mongoErr
+
+    const params = evolve(
+      /**
+       * Apply the msg template to the provided context
+       * to produce the final msg on the HyperErr
+       */
+      { msg: applyTo({ ...context }) },
+      /**
+       * Map MongoDB statuses to corresponding HyperErr status
+       * and templated msg
+       */
+      // deno-lint-ignore ban-ts-comment
+      // @ts-ignore
+      propOr(
+        {
+          status: mongoErr.status || 500,
+          message: mongoErr.message || 'an error occurred',
+        },
+        /**
+         * Each MongoDB error comes back with a code
+         */
+        String(mongoErr.code),
+        /**
+         * A map of MongoDB error codes to HyperErr shapes,
+         * each containing a corresponding status and msg template
+         * to generate the msg on the HyperErr using the provided context
+         *
+         * See https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
+         */
+        {
+          '11000': {
+            status: 409,
+            msg: template`${'subject'} already exists`,
+          },
+        },
+      ),
+    )
+    // deno-lint-ignore no-explicit-any
+    return HyperErr(params as any)
+  }
