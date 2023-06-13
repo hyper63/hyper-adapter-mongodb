@@ -275,17 +275,116 @@ async (
   await t.step('queryDocuments', async (t) => {
     await t.step(
       'should return the documents that match the selector',
-      async () => {},
+      async () => {
+        await a.createDatabase(DB)
+
+        await a.createDocument({
+          db: DB,
+          id: '10-caddyshack',
+          doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '12-ghostbusters',
+          doc: { title: 'Ghostbusters', year: '1980', genre: ['comedy'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '15-starwars',
+          doc: { title: 'Star Wars', year: '1976', genre: ['sci-fi'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '17-jaws',
+          doc: { title: 'Jaws', year: '1977', genre: ['drama'] },
+        })
+
+        const res = await a.queryDocuments({
+          db: DB,
+          query: {
+            selector: { year: { $lte: '1978' } },
+            fields: ['_id', 'genre', 'year'],
+            sort: [{ title: 'DESC' }, { year: 'DESC' }],
+          },
+        })
+
+        assertObjectMatch(res as any, {
+          ok: true,
+          docs: [
+            { _id: '15-starwars', year: '1976', genre: ['sci-fi'] },
+            { _id: '17-jaws', year: '1977', genre: ['drama'] },
+            { _id: '10-caddyshack', year: '1978', genre: ['comedy'] },
+          ],
+        })
+
+        await a.removeDatabase(DB)
+      },
     )
 
     await t.step(
       'should return an empty array if no documents are found',
-      async () => {},
+      async () => {
+        await a.createDatabase(DB)
+
+        await a.createDocument({
+          db: DB,
+          id: '10-caddyshack',
+          doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '12-ghostbusters',
+          doc: { title: 'Ghostbusters', year: '1980', genre: ['comedy'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '15-starwars',
+          doc: { title: 'Star Wars', year: '1976', genre: ['sci-fi'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '17-jaws',
+          doc: { title: 'Jaws', year: '1977', genre: ['drama'] },
+        })
+
+        const res = await a.queryDocuments({
+          db: DB,
+          query: {
+            selector: { year: { $lte: '1960' } },
+            fields: ['_id', 'genre', 'year'],
+            sort: [{ title: 'DESC' }, { year: 'DESC' }],
+          },
+        })
+
+        assertObjectMatch(res as any, {
+          ok: true,
+          docs: [],
+        })
+
+        await a.removeDatabase(DB)
+      },
     )
 
     await t.step(
       'should return a HyperErr(404) if the database does not exist',
-      async () => {},
+      async () => {
+        const res = await a.queryDocuments({
+          db: DB,
+          query: {
+            selector: { year: { $lte: '1960' } },
+            fields: ['_id', 'genre', 'year'],
+            sort: [{ title: 'DESC' }, { year: 'DESC' }],
+          },
+        })
+
+        assertObjectMatch(res as any, { ok: false, status: 404 })
+      },
     )
   })
 
