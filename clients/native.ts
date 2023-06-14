@@ -108,7 +108,7 @@ class Collection<T extends Document> implements MongoCollectionClient<T> {
 
   async bulk(operations: BulkOperation[]): Promise<boolean> {
     // deno-lint-ignore no-explicit-any
-    await this.collection.bulkWrite(operations as any)
+    const _res = await this.collection.bulkWrite(operations as any)
     return true
   }
 

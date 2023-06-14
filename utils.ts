@@ -18,6 +18,10 @@ export const toBulkOperations = map(
         replaceOne: {
           filter: { _id: d._id },
           replacement: omit(['_update'], d),
+          /**
+           * Always insert the document, if not found,
+           * and replace otherwise
+           */
           upsert: true,
         },
       }
