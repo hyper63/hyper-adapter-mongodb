@@ -31,6 +31,10 @@ jobs:
         env:
           CI: true
 
+  # Run the test suite against a Mongo Instance Self Hosted
+  # using the mongodb: protocol
+  # 
+  # This is meant to represent a self-hosted instance of MongoDB
   test-native-integration-self-hosted:
     runs-on: ubuntu-latest
     strategy:
@@ -46,6 +50,7 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
+      # Start a Mongo Instance in the local CI runner environment
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.9.0
         with:
@@ -58,9 +63,11 @@ jobs:
           CI: true
           MONGO_URL: mongodb://127.0.0.1:27017
 
+  # Run the test suite against a Mongo Instance Deployed on MongoDB Atlas
+  # a common hosting platform for MongoDB.
+  # 
+  # The main distinction is that MongoDB Atlas uses the mongodb+srv: protocol
   test-native-integration-atlas:
-    # Skip for now until the integration suite is done
-    if: false 
     runs-on: ubuntu-latest
     strategy:
       matrix:
