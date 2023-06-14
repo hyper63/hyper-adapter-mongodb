@@ -456,20 +456,197 @@ async (
   })
 
   await t.step('listDocuments', async (t) => {
-    await t.step('should return the list of documents', async () => {})
+    await t.step('should return the list of documents', async () => {
+      await a.createDatabase(DB)
+
+      await a.createDocument({
+        db: DB,
+        id: '15-starwars',
+        doc: { title: 'Star Wars', year: '1976', genre: ['sci-fi'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '20-caddyshack',
+        doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '22-ghostbusters',
+        doc: { title: 'Ghostbusters', year: '1980', genre: ['comedy'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '17-jaws',
+        doc: { title: 'Jaws', year: '1977', genre: ['drama'] },
+      })
+
+      const res = await a.listDocuments({
+        db: DB,
+        limit: 2,
+        startkey: '16',
+      })
+
+      assertObjectMatch(res as any, {
+        ok: true,
+        docs: [
+          { _id: '17-jaws', title: 'Jaws', year: '1977', genre: ['drama'] },
+          {
+            _id: '20-caddyshack',
+            title: 'Caddyshack',
+            year: '1978',
+            genre: ['comedy'],
+          },
+        ],
+      })
+
+      await a.removeDatabase(DB)
+    })
+
+    await t.step(
+      'should return the documents whose _id is in the keys provided',
+      async () => {
+        await a.createDatabase(DB)
+
+        await a.createDocument({
+          db: DB,
+          id: '15-starwars',
+          doc: { title: 'Star Wars', year: '1976', genre: ['sci-fi'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '20-caddyshack',
+          doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '22-ghostbusters',
+          doc: { title: 'Ghostbusters', year: '1980', genre: ['comedy'] },
+        })
+
+        await a.createDocument({
+          db: DB,
+          id: '17-jaws',
+          doc: { title: 'Jaws', year: '1977', genre: ['drama'] },
+        })
+
+        const res = await a.listDocuments({
+          db: DB,
+          keys: '22-ghostbusters,17-jaws,20-caddyshack',
+        })
+
+        assertObjectMatch(res as any, {
+          ok: true,
+          docs: [
+            { _id: '17-jaws', title: 'Jaws', year: '1977', genre: ['drama'] },
+            {
+              _id: '20-caddyshack',
+              title: 'Caddyshack',
+              year: '1978',
+              genre: ['comedy'],
+            },
+            {
+              _id: '22-ghostbusters',
+              title: 'Ghostbusters',
+              year: '1980',
+              genre: ['comedy'],
+            },
+          ],
+        })
+
+        await a.removeDatabase(DB)
+      },
+    )
 
     await t.step(
       'should return a HyperErr(404) if the database does not exist',
-      async () => {},
+      async () => {
+        const res = await a.listDocuments({
+          db: DB,
+          keys: '22-ghostbusters,17-jaws,20-caddyshack',
+        })
+        assertObjectMatch(res as any, { ok: false, status: 404 })
+      },
     )
   })
 
   await t.step('bulkDocuments', async (t) => {
-    await t.step('should perform the bulk operation', async () => {})
+    await t.step('should perform the bulk operation', async () => {
+      await a.createDatabase(DB)
+
+      await a.createDocument({
+        db: DB,
+        id: '15-starwars',
+        doc: { title: 'Star Wars', year: '1976', genre: ['sci-fi'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '20-caddyshack',
+        doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+      })
+
+      const res = await a.bulkDocuments({
+        db: DB,
+        docs: [
+          // insert
+          { _id: '17-jaws', title: 'Jaws', year: '1977', genre: ['drama'] },
+          // delete
+          { _id: '15-starwars', _deleted: true },
+          // update
+          {
+            _id: '20-caddyshack',
+            title: 'Caddyshack Woo',
+            year: '1978',
+            genre: ['comedy'],
+            foo: 'bar',
+          },
+        ],
+      })
+
+      assertObjectMatch(res as any, {
+        ok: true,
+        results: [
+          { id: '17-jaws', ok: true },
+          { id: '15-starwars', ok: true },
+          { id: '20-caddyshack', ok: true },
+        ],
+      })
+
+      const queryRes = await a.queryDocuments({
+        db: DB,
+        query: { sort: [{ _id: 'ASC' }] },
+      })
+      assertObjectMatch(queryRes as any, {
+        ok: true,
+        docs: [
+          { _id: '17-jaws', title: 'Jaws', year: '1977', genre: ['drama'] },
+          {
+            _id: '20-caddyshack',
+            title: 'Caddyshack Woo',
+            year: '1978',
+            genre: ['comedy'],
+            foo: 'bar',
+          },
+        ],
+      })
+
+      await a.removeDatabase(DB)
+    })
 
     await t.step(
       'should return a HyperErr(404) if the database does not exist',
-      async () => {},
+      async () => {
+        const res = await a.bulkDocuments({
+          db: DB,
+          docs: [{ _id: 'foo' }],
+        })
+        assertObjectMatch(res as any, { ok: false, status: 404 })
+      },
     )
   })
 }

@@ -331,11 +331,18 @@ export function adapter({
     let q = {}
     q = startkey ? set(lensPath(['_id', '$gte']), startkey, q) : q
     q = endkey ? set(lensPath(['_id', '$lte']), endkey, q) : q
+    /**
+     * TODO: Will an $in perform well? Should examine performance of this
+     */
     q = keys ? set(lensPath(['_id', '$in']), split(',', keys), q) : q
 
     let options = {}
     options = limit ? set(lensPath(['limit']), Number(limit), options) : options
-    options = descending ? set(lensPath(['sort']), mapSort([{ _id: 'DESC' }]), options) : options
+    options = set(
+      lensPath(['sort']),
+      mapSort([{ _id: descending ? 'DESC' : 'ASC' }]),
+      options,
+    )
 
     return meta
       .get(db)
@@ -364,7 +371,7 @@ export function adapter({
     db: string
     docs: Record<string, unknown>[]
   }) {
-    meta
+    return meta
       .get(db)
       .chain(() =>
         $database(db)
