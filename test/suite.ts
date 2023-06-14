@@ -12,7 +12,7 @@ async (
 ) => {
   const a = adapter({
     client,
-    meta: new MetaDb({ client, metaDbName: 'foobar' }),
+    meta: new MetaDb({ client, metaDbName: 'hyper-data-meta' }),
   })
 
   /**
