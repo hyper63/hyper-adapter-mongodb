@@ -1,5 +1,9 @@
-import { HyperErr } from 'https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.1/packages/utils/hyper-err.js'
-import { EJSON } from '../deps.ts'
+/**
+ * Not fully implemented or tested
+ *
+ * See https://github.com/hyper63/hyper-adapter-mongodb/issues/36
+ */
+import { EJSON, HyperErr } from '../deps.ts'
 import type { AuthOptions, Document } from '../types.ts'
 
 import type {
@@ -9,7 +13,7 @@ import type {
   MongoInstanceClient,
 } from './types.ts'
 
-export class AtlasClient implements MongoInstanceClient {
+export class AtlasDataClient implements MongoInstanceClient {
   dataSource: string
   endpoint: string
   fetch = fetch
@@ -52,9 +56,9 @@ export class AtlasClient implements MongoInstanceClient {
 
 export class Database implements MongoDatabaseClient {
   name: string
-  client: AtlasClient
+  client: AtlasDataClient
 
-  constructor(name: string, client: AtlasClient) {
+  constructor(name: string, client: AtlasDataClient) {
     this.name = name
     this.client = client
   }
@@ -82,7 +86,7 @@ export class Database implements MongoDatabaseClient {
 export class Collection<T extends Document> implements MongoCollectionClient<T> {
   name: string
   database: Database
-  client: AtlasClient
+  client: AtlasDataClient
 
   constructor(name: string, database: Database) {
     this.name = name

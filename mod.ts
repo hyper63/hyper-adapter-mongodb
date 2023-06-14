@@ -1,7 +1,7 @@
 import type { AdapterConfig } from './types.ts'
 import PORT_NAME from './port_name.ts'
 
-import { AtlasClient } from './clients/atlas.ts'
+import { AtlasDataClient } from './clients/atlas-data.ts'
 import { NativeClient } from './clients/native.ts'
 import type { MongoInstanceClient } from './clients/types.ts'
 
@@ -16,7 +16,7 @@ export default (config: AdapterConfig) => ({
   port: PORT_NAME,
   load: async () => {
     const url = new URL(config.url)
-    let client: NativeClient | AtlasClient
+    let client: NativeClient | AtlasDataClient
 
     if (isNative(url)) {
       client = new NativeClient({ url: config.url })
@@ -27,7 +27,7 @@ export default (config: AdapterConfig) => ({
           'options.atlas is required when using an Atlas Data url',
         )
       }
-      client = new AtlasClient({
+      client = new AtlasDataClient({
         ...config.options.atlas,
         endpoint: config.url,
         fetch,

@@ -98,8 +98,9 @@ Run the unit tests, lint, and check formatting run:
 deno task test
 ```
 
-> To run the integration tests, you will need an instance of MongoDB running. If you're developing
-> in [`Gitpod`](https://gitpod.io), a MongoDB instance is automatically started for you
+> To run the integration tests, you will need an instance of MongoDB running, along with setting
+> `MONGO_URL` to your connection string. If you're developing in [`Gitpod`](https://gitpod.io), a
+> MongoDB instance is automatically started for you
 
 To run the tests on the adapter methods run:
 

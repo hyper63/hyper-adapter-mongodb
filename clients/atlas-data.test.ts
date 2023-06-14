@@ -1,8 +1,8 @@
 import { assertEquals, assertObjectMatch, assertThrows, deferred } from '../dev_deps.ts'
 
-import { AtlasClient } from './atlas.ts'
+import { AtlasDataClient } from './atlas-data.ts'
 
-Deno.test('client - atlas', async (t) => {
+Deno.test('client - atlas-data', async (t) => {
   let fetchMock = deferred<{ url: string; init: RequestInit }>()
 
   const happy = {
@@ -21,7 +21,7 @@ Deno.test('client - atlas', async (t) => {
   }
 
   await t.step('should append the method to the url', async () => {
-    const client = new AtlasClient(happy)
+    const client = new AtlasDataClient(happy)
     fetchMock = deferred<{ url: string; init: RequestInit }>()
 
     await client
@@ -39,7 +39,7 @@ Deno.test('client - atlas', async (t) => {
 
   await t.step('should append the headers to the request', async (t) => {
     await t.step('Content-Type and Accept', async () => {
-      const client = new AtlasClient(happy)
+      const client = new AtlasDataClient(happy)
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
@@ -56,7 +56,7 @@ Deno.test('client - atlas', async (t) => {
 
     await t.step('auth', async (t) => {
       await t.step('api-key', async () => {
-        const client = new AtlasClient(happy)
+        const client = new AtlasDataClient(happy)
         fetchMock = deferred<{ url: string; init: RequestInit }>()
 
         await client
@@ -71,7 +71,7 @@ Deno.test('client - atlas', async (t) => {
       })
 
       await t.step('jwtTokenString', async () => {
-        const client = new AtlasClient({
+        const client = new AtlasDataClient({
           ...happy,
           auth: { jwtTokenString: 'foobar' },
         })
@@ -89,7 +89,7 @@ Deno.test('client - atlas', async (t) => {
       })
 
       await t.step('email and password', async () => {
-        const client = new AtlasClient({
+        const client = new AtlasDataClient({
           ...happy,
           auth: { email: 'foo@bar.com', password: 'secret' },
         })
@@ -111,7 +111,7 @@ Deno.test('client - atlas', async (t) => {
 
   await t.step('should append the body to the request', async (t) => {
     await t.step('database, collection, and dataSource', async () => {
-      const client = new AtlasClient(happy)
+      const client = new AtlasDataClient(happy)
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
@@ -129,7 +129,7 @@ Deno.test('client - atlas', async (t) => {
     })
 
     await t.step('options', async () => {
-      const client = new AtlasClient(happy)
+      const client = new AtlasDataClient(happy)
       fetchMock = deferred<{ url: string; init: RequestInit }>()
 
       await client
@@ -149,6 +149,6 @@ Deno.test('client - atlas', async (t) => {
   await t.step('should throw if credentials are not provided', () => {
     // deno-lint-ignore ban-ts-comment
     // @ts-expect-error
-    assertThrows(() => new AtlasClient({ ...happy, auth: {} }))
+    assertThrows(() => new AtlasDataClient({ ...happy, auth: {} }))
   })
 })
