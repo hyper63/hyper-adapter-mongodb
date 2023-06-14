@@ -3,7 +3,7 @@
 
 <p align="center">
   <a href="https://nest.land/package/hyper-adapter-mongodb"><img src="https://nest.land/badge.svg" alt="Nest Badge" /></a>
-  <a href="https://github.com/hyper63/hyper-adapter-mongodb/actions/workflows/test.yml"><img src="https://github.com/hyper63/hyper-adapter-mongodb/actions/workflows/test.yml/badge.svg" alt="Test" /></a>
+  <a href="https://github.com/hyper63/hyper-adapter-mongodb/actions/workflows/test-and-publish.yml"><img src="https://github.com/hyper63/hyper-adapter-mongodb/actions/workflows/test-and-publish.yml/badge.svg" alt="Test" /></a>
   <a href="https://github.com/hyper63/hyper-adapter-mongodb/tags/"><img src="https://img.shields.io/github/tag/hyper63/hyper-adapter-mongodb" alt="Current Version" /></a>
 </p>
 
@@ -21,8 +21,8 @@
 
 ## Background
 
-mongodb is a NoSQL database that is very popular in the developer ecosystem. With this adapter, you
-will be able to use mongodb as your data store for your hyper applications.
+MongoDB is a NoSQL database that is very popular in the developer ecosystem. With this adapter, you
+will be able to use MongoDB as your data store for your hyper applications.
 
 For more information on MongoDB: https://www.mongodb.com/
 
@@ -31,16 +31,16 @@ For more information on MongoDB: https://www.mongodb.com/
 create `hyper.config.js`
 
 ```js
-import { default as mongo } from 'https://x.nest.land/hyper-adapter-mongodb@0.0.1/mod.js'
+import { default as mongo } from 'https://raw.githubusercontent.com/hyper63/hyper-adapter-mongodb/{TAG}/mod.ts'
 
 const connectionString = Deno.env.get('MONGODB_URL')
 
 export default {
-  app: opine,
+  app: express,
   adapter: [
     {
       port: 'data',
-      plugins: [mongo(connectionString)],
+      plugins: [mongo({ url: connectionString })],
     },
   ],
 }
@@ -49,7 +49,7 @@ export default {
 create `mod.js`
 
 ```js
-import core from 'https://x.nest.land/hyper@1.3.12/mod.js'
+import core from 'https://raw.githubusercontent.com/hyper63/hyper/hyper%40v4.1.0/packages/core/mod.ts'
 import config from './hyper.config.js'
 
 core(config)
@@ -57,13 +57,12 @@ core(config)
 
 ## Installation
 
-This is a Deno module available to import from
-[nest.land](https://nest.land/package/hyper-adapter-mongodb)
+This is a Deno module available to import from Github via Git Tags
 
 deps.js
 
 ```
-export { default as mongodb } from "https://x.nest.land/hyper-adapter-mongodb@0.0.1/mod.js"
+export { default as mongodb } from "https://raw.githubusercontent.com/hyper63/hyper-adapter-mongodb/{TAG}/mod.ts"
 ```
 
 ## Features
@@ -84,20 +83,35 @@ export { default as mongodb } from "https://x.nest.land/hyper-adapter-mongodb@0.
 This adapter fully implements the Data port and can be used as the
 [hyper Data Service](https://docs.hyper.io/data-api) adapter
 
-See the full port [here](https://nest.land/packages/hyper-port-data)
+See the full port [here](https://github.com/hyper63/hyper/tree/main/packages/port-data)
 
 ## Contributing
 
 Contributions are welcome! See the hyper
-[contribution guide](https://docs.hyper.io/contributing-to-hyper)
+[contribution guide](https://docs.hyper.io/oss/contributing-to-hyper)
 
 ## Testing
 
-```
-./scripts/test.sh
+Run the unit tests, lint, and check formatting run:
+
+```sh
+deno task test
 ```
 
-To lint, check formatting, and run unit tests
+> To run the integration tests, you will need an instance of MongoDB running. If you're developing
+> in [`Gitpod`](https://gitpod.io), a MongoDB instance is automatically started for you
+
+To run the tests on the adapter methods run:
+
+```sh
+deno task test:integration-native
+```
+
+## TODO
+
+- Implement support for
+  [MongoDB Atlas Data API](https://www.mongodb.com/docs/atlas/app-services/data-api/). See
+  [this issue](https://github.com/hyper63/hyper-adapter-mongodb/issues/36)
 
 ## License
 
