@@ -98,9 +98,22 @@ Run the unit tests, lint, and check formatting run:
 deno task test
 ```
 
-> To run the integration tests, you will need an instance of MongoDB running, along with setting
-> `MONGO_URL` to your connection string. If you're developing in [`Gitpod`](https://gitpod.io), a
-> MongoDB instance is automatically started for you
+### Integration Tests
+
+> If you're developing in [`Gitpod`](https://gitpod.io), a MongoDB instance is automatically started
+> for you
+
+To run the integration tests, you will need an instance of MongoDB running, along with setting
+`MONGO_URL` to your connection string. For convenience you may use the `Dockerfile` in `.mongodb`
+directory:
+
+```sh
+docker build -t hyper-mongodb .mongodb
+docker run -it -p 27017:27017 hyper-mongodb
+```
+
+You can also use a MongoDB Atlas Instance, as long your `MONGO_URL` is set to the correct connection
+string.
 
 To run the tests on the adapter methods run:
 

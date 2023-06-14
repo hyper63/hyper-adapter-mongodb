@@ -3,7 +3,10 @@ image:
 
 tasks:
   - name: Start MongoDB
-    command: mkdir -p /workspace/data && mongod --dbpath /workspace/data
+    init: docker build -t hyper-mongodb .mongodb
+    command: |
+      mkdir -p /workspace/data
+      docker run -it -p 27017:27017 -v /workspace/data:/data/db hyper-mongodb
 
   - name: Setup Git Hooks
     init: git config core.hooksPath .hooks
