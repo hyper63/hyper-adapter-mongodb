@@ -1,4 +1,4 @@
-import { crocks, HyperErr } from './deps.ts'
+import { crocks, cuid, HyperErr } from './deps.ts'
 
 import type { MongoInstanceClient } from './clients/types.ts'
 
@@ -58,7 +58,9 @@ export class MetaDb {
           .chain(
             Async.fromPromise((collection) => collection.findOne({ _id: name }, {})),
           )
-          .chain((doc) =>
+          .chain<ReturnType<typeof HyperErr>, DatabaseMeta>((doc) =>
+            // deno-lint-ignore ban-ts-comment
+            // @ts-ignore
             doc ? Async.Resolved(doc) : Async.Rejected(
               HyperErr({ status: 404, msg: `database does not exist` }),
             )
@@ -84,12 +86,13 @@ export class MetaDb {
           Async.fromPromise((collection) => {
             const doc = {
               _id: name,
-              name,
+              // Use a cuid for the actual name of the database
+              name: cuid(),
               type: 'database' as const,
               createdAt: new Date().toISOString(),
             }
 
-            return collection.insertOne(doc)
+            return collection.insertOne(doc).then(() => doc)
           }),
         ),
       // DB was found, so produce a conflict

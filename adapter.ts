@@ -85,29 +85,32 @@ export function adapter({
         // DB DNE, so create it
         () =>
           /**
-           * Add a document, then immediately remove it
-           * so that the empty database and collection is implcitly created
+           * Create metadata doc for db
            */
-          Async.of($database(name)).chain(($db) =>
-            $db
-              .insertOne({
-                _id: 'info',
-                type: '_ADMIN',
-                created: new Date().toISOString(),
-              })
-              .chain(() => $db.removeOne({ _id: 'info' }))
-              /**
-               * Make sure to persist metadata on the db
-               */
-              .chain(() => meta.create(name))
-              .bimap(
-                mongoErrToHyperErr({
-                  subject: `database ${name}`,
-                  db: `database ${name}`,
-                }),
-                always({ ok: true }),
-              )
-          ),
+          meta.create(name).chain((metaDoc) => {
+            /**
+             * Add a document, then immediately remove it
+             * so that the empty database and collection are implcitly created
+             */
+            return Async.of(
+              $database((metaDoc as { name: string }).name),
+            ).chain(($db) =>
+              $db
+                .insertOne({
+                  _id: 'info',
+                  type: '_ADMIN',
+                  created: new Date().toISOString(),
+                })
+                .chain(() => $db.removeOne({ _id: 'info' }))
+                .bimap(
+                  mongoErrToHyperErr({
+                    subject: `database ${name}`,
+                    db: `database ${name}`,
+                  }),
+                  always({ ok: true }),
+                )
+            )
+          }),
         // Already exists, so return a HyperErr(409)
         () =>
           Async.Rejected(
@@ -124,7 +127,7 @@ export function adapter({
   function removeDatabase(name: string) {
     return meta
       .get(name)
-      .chain(() => $database(name).dropDatabase())
+      .chain(({ name: actualName }) => $database(actualName).dropDatabase())
       .chain(() => meta.remove(name))
       .bimap(
         mongoErrToHyperErr({
@@ -151,11 +154,11 @@ export function adapter({
   }) {
     return meta
       .get(db)
-      .chain(() =>
+      .chain(({ name: actualName }) =>
         isEmpty(doc)
           ? Async.Rejected(HyperErr({ status: 400, msg: 'document empty' }))
           : Async.of({ ...doc, _id: id }).chain((docWithId) =>
-            $database(db)
+            $database(actualName)
               .insertOne(docWithId)
               .bimap(
                 mongoErrToHyperErr({
@@ -176,7 +179,7 @@ export function adapter({
   function retrieveDocument({ db, id }: { db: string; id: string }) {
     return meta
       .get(db)
-      .chain(() => $database(db).findOne({ _id: id }))
+      .chain(({ name: actualName }) => $database(actualName).findOne({ _id: id }))
       .chain((doc) =>
         doc ? Async.Resolved(doc) : Async.Rejected(
           HyperErr({
@@ -211,8 +214,8 @@ export function adapter({
   }) {
     return meta
       .get(db)
-      .chain(() =>
-        $database(db)
+      .chain(({ name: actualName }) =>
+        $database(actualName)
           .replaceOne({ _id: id }, doc, { upsert: true })
           .chain(({ matchedCount, modifiedCount }) =>
             matchedCount + modifiedCount === 2 ? Async.Resolved({ ok: true, id }) : Async.Rejected(
@@ -240,8 +243,8 @@ export function adapter({
   function removeDocument({ db, id }: { db: string; id: string }) {
     return meta
       .get(db)
-      .chain(() =>
-        $database(db)
+      .chain(({ name: actualName }) =>
+        $database(actualName)
           .removeOne({ _id: id })
           .chain(({ deletedCount }) =>
             deletedCount === 1 ? Async.Resolved({ ok: true, id }) : Async.Rejected(
@@ -270,8 +273,8 @@ export function adapter({
   function queryDocuments({ db, query }: { db: string; query: any }) {
     return meta
       .get(db)
-      .chain(() =>
-        $database(db)
+      .chain(({ name: actualName }) =>
+        $database(actualName)
           .find(query.selector, {
             ...queryOptions(query),
           })
@@ -295,8 +298,8 @@ export function adapter({
   }) {
     return meta
       .get(db)
-      .chain(() =>
-        $database(db)
+      .chain(({ name: actualName }) =>
+        $database(actualName)
           .createIndex({ name, spec: mapSort(fields) })
           .bimap(
             mongoErrToHyperErr({
@@ -346,8 +349,8 @@ export function adapter({
 
     return meta
       .get(db)
-      .chain(() =>
-        $database(db)
+      .chain(({ name: actualName }) =>
+        $database(actualName)
           .find(q, { ...options })
           .bimap(
             mongoErrToHyperErr({
@@ -373,8 +376,8 @@ export function adapter({
   }) {
     return meta
       .get(db)
-      .chain(() =>
-        $database(db)
+      .chain(({ name: actualName }) =>
+        $database(actualName)
           .bulk(toBulkOperations(docs))
           .bimap(
             mongoErrToHyperErr({
