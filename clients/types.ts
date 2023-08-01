@@ -7,17 +7,17 @@ export interface MongoInstanceClient {
 export interface MongoDatabaseClient {
   drop(): Promise<boolean>
 
-  createIndex(arg: {
-    name: string
-    spec: { [field: string]: 1 | -1 }
-  }): Promise<string>
-
   collection<T extends Document = Document>(
     name: string,
   ): MongoCollectionClient<T>
 }
 
 export interface MongoCollectionClient<T extends Document> {
+  createIndex(
+    spec: { [field: string]: 1 | -1 },
+    options: { partialFilterExpression?: Document; name: string },
+  ): Promise<string>
+
   insertOne(doc: T): Promise<{ insertedId: string }>
 
   insertMany(docs: T[]): Promise<{ insertedIds: string[] }>

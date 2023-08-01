@@ -22,9 +22,6 @@ export class NativeClient implements MongoInstanceClient {
   db(name: string): MongoDatabaseClient {
     const db = this.nativeClient.db(name)
     return {
-      createIndex({ name, spec }) {
-        return db.createIndex(name, spec)
-      },
       drop() {
         return db.dropDatabase()
       },
@@ -38,6 +35,14 @@ export class NativeClient implements MongoInstanceClient {
 
 class Collection<T extends Document> implements MongoCollectionClient<T> {
   constructor(private collection: NativeCollection<T>) {}
+
+  async createIndex(
+    spec: { [field: string]: 1 | -1 },
+    options: { partialFilterExpression?: Document; name: string },
+  ) {
+    const res = await this.collection.createIndex(spec, options)
+    return res
+  }
 
   async insertOne(doc: T) {
     // deno-lint-ignore no-explicit-any

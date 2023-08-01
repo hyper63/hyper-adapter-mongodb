@@ -408,6 +408,7 @@ async (
         db: DB,
         name: 'idx-title-year',
         fields: ['title', 'year'],
+        partialFilter: undefined,
       })
 
       assertObjectMatch(res as any, { ok: true })
@@ -434,6 +435,44 @@ async (
         db: DB,
         name: 'idx-title-year',
         fields: [{ title: 'DESC' }, { year: 'ASC' }],
+        partialFilter: undefined,
+      })
+
+      assertObjectMatch(res as any, { ok: true })
+
+      await a.removeDatabase(DB)
+    })
+
+    await t.step('should create the index with partialFilter', async () => {
+      await a.createDatabase(DB)
+
+      await a.createDocument({
+        db: DB,
+        id: '10-caddyshack',
+        doc: {
+          title: 'Caddyshack',
+          year: '1978',
+          genre: ['comedy'],
+          type: 'movie',
+        },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '12-ghostbusters',
+        doc: {
+          title: 'Ghostbusters',
+          year: '1980',
+          genre: ['comedy'],
+          type: 'movie',
+        },
+      })
+
+      const res = await a.indexDocuments({
+        db: DB,
+        name: 'idx-title-year',
+        fields: [{ title: 'DESC' }, { year: 'ASC' }],
+        partialFilter: { type: 'movie' },
       })
 
       assertObjectMatch(res as any, { ok: true })
@@ -448,6 +487,7 @@ async (
           db: DB,
           name: 'idx-title-year',
           fields: [{ title: 'DESC' }, { year: 'ASC' }],
+          partialFilter: undefined,
         })
 
         assertObjectMatch(res as any, { ok: false, status: 404 })
