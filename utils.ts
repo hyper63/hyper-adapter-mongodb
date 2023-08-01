@@ -161,6 +161,10 @@ export const mongoErrToHyperErr =
             status: 409,
             msg: template`${'subject'} already exists`,
           },
+          '86': {
+            status: 409,
+            msg: template`${'subject'} fields do not match the existing index with the same name`,
+          },
         },
       ),
     )

@@ -313,13 +313,10 @@ export function adapter({
           })
           .bimap(
             mongoErrToHyperErr({
-              subject: `index with fields ${fields.join(', ')}`,
+              subject: `index ${name}`,
               db: `database`,
             }),
-            (res) => {
-              console.log(res)
-              return always({ ok: true })()
-            },
+            always({ ok: true }),
           )
       })
       .bichain(handleHyperErr, Async.Resolved)
