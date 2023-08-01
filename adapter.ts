@@ -37,6 +37,7 @@ const { always, isEmpty, lensPath, set, split, identity } = R
  * @property {string} db
  * @property {string} name
  * @property {string[]} fields
+ * @property {object} [partialFilter]
  *
  * @typedef {Object} ListDocumentArgs
  * @property {string} db
@@ -64,8 +65,11 @@ export function adapter({
     const col = db.collection(name)
 
     return {
-      createIndex: Async.fromPromise(db.createIndex.bind(db)),
       dropDatabase: Async.fromPromise(db.drop.bind(db)),
+
+      // deno-lint-ignore ban-ts-comment
+      // @ts-expect-error
+      createIndex: Async.fromPromise(col.createIndex.bind(col)),
       insertOne: Async.fromPromise(col.insertOne.bind(col)),
       findOne: Async.fromPromise(col.findOne.bind(col)),
       find: Async.fromPromise(col.find.bind(col)),
@@ -291,24 +295,33 @@ export function adapter({
     db,
     name,
     fields,
+    partialFilter,
   }: {
     db: string
     name: string
     fields: string[] | { [field: string]: 'ASC' | 'DESC' }[]
+    // deno-lint-ignore no-explicit-any
+    partialFilter: any
   }) {
     return meta
       .get(db)
-      .chain(({ name: actualName }) =>
-        $database(actualName)
-          .createIndex({ name, spec: mapSort(fields) })
+      .chain(({ name: actualName }) => {
+        return $database(actualName)
+          .createIndex(mapSort(fields), {
+            name,
+            ...(partialFilter ? { partialFilterExpression: partialFilter } : {}),
+          })
           .bimap(
             mongoErrToHyperErr({
               subject: `index with fields ${fields.join(', ')}`,
               db: `database`,
             }),
-            always({ ok: true }),
+            (res) => {
+              console.log(res)
+              return always({ ok: true })()
+            },
           )
-      )
+      })
       .bichain(handleHyperErr, Async.Resolved)
       .toPromise()
   }

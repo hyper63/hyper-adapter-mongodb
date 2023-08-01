@@ -63,13 +63,6 @@ export class Database implements MongoDatabaseClient {
     this.client = client
   }
 
-  createIndex(): Promise<string> {
-    throw HyperErr({
-      status: 501,
-      msg: 'Atlas Data API does not expose creating indexes. Create indexes via the Atlas Console',
-    })
-  }
-
   drop(): Promise<boolean> {
     throw HyperErr({
       status: 501,
@@ -92,6 +85,13 @@ export class Collection<T extends Document> implements MongoCollectionClient<T> 
     this.name = name
     this.database = database
     this.client = database.client
+  }
+
+  createIndex(): Promise<string> {
+    throw HyperErr({
+      status: 501,
+      msg: 'Atlas Data API does not expose creating indexes. Create indexes via the Atlas Console',
+    })
   }
 
   insertOne(doc: T) {
