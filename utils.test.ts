@@ -100,7 +100,48 @@ Deno.test('utils', async (t) => {
         )
       })
 
-      // TODO: add more mappings
+      await t.step('index conflict', () => {
+        assertObjectMatch(
+          mongoErrToHyperErr({ subject: 'index foobar' })({
+            code: 86,
+            message: 'mongo error',
+          }),
+          {
+            status: 409,
+            msg: 'index foobar fields do not match the existing index with the same name',
+          },
+        )
+      })
+
+      await t.step(
+        'should default to a status and the Error message from MongoDB driver',
+        () => {
+          assertObjectMatch(
+            mongoErrToHyperErr({ subject: 'index foobar' })({
+              code: 12345,
+              message: 'mongo error',
+            }),
+            { status: 500, msg: 'mongo error' },
+          )
+
+          assertObjectMatch(
+            mongoErrToHyperErr({ subject: 'index foobar' })({
+              code: 12345,
+              status: 503,
+              message: 'use mongo status',
+            }),
+            { status: 503, msg: 'use mongo status' },
+          )
+
+          assertObjectMatch(
+            mongoErrToHyperErr({ subject: 'index foobar' })({
+              code: 12345,
+              no_message: 'use mongo status',
+            }),
+            { status: 500, msg: 'an error occurred' },
+          )
+        },
+      )
     })
   })
 })

@@ -1,6 +1,6 @@
 import { crocks, HyperErr, isHyperErr, R } from './deps.ts'
 
-const { map, omit, ifElse, evolve, applyTo, propOr } = R
+const { map, omit, ifElse, evolve, applyTo, propOr, always } = R
 const { Async } = crocks
 
 export const handleHyperErr = ifElse(
@@ -142,8 +142,8 @@ export const mongoErrToHyperErr =
       // @ts-ignore
       propOr(
         {
-          status: mongoErr.status || 500,
-          message: mongoErr.message || 'an error occurred',
+          status: mongoErr?.status || 500,
+          msg: always(mongoErr?.message || 'an error occurred'),
         },
         /**
          * Each MongoDB error comes back with a code
@@ -153,6 +153,8 @@ export const mongoErrToHyperErr =
          * A map of MongoDB error codes to HyperErr shapes,
          * each containing a corresponding status and msg template
          * to generate the msg on the HyperErr using the provided context
+         * 
+         * TODO: add more mappings and corresponding tests
          *
          * See https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
          */
