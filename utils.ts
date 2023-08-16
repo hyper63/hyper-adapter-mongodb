@@ -153,7 +153,7 @@ export const mongoErrToHyperErr =
          * A map of MongoDB error codes to HyperErr shapes,
          * each containing a corresponding status and msg template
          * to generate the msg on the HyperErr using the provided context
-         * 
+         *
          * TODO: add more mappings and corresponding tests
          *
          * See https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
