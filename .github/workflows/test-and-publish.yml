@@ -69,6 +69,8 @@ jobs:
   # The main distinction is that MongoDB Atlas uses the mongodb+srv: protocol
   test-native-integration-atlas:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-test-native-integration-atlas
     strategy:
       matrix:
         deno-version: [1.x]
