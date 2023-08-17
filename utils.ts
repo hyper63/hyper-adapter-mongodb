@@ -52,7 +52,7 @@ export const queryOptions = ({
     /**
      * See https://www.mongodb.com/docs/manual/reference/operator/aggregation/limit/
      */
-    ...(limit ? { limit: Number(limit) } : {}),
+    ...(limit ? { limit: Number(limit) } : { limit: 25 }),
     ...(fields
       ? {
         projection: fields.reduce(

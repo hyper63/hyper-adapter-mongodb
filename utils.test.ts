@@ -1,9 +1,8 @@
 import { HyperErr } from 'https://raw.githubusercontent.com/hyper63/hyper/hyper-utils%40v0.1.0/packages/utils/hyper-err.js'
 import { isHyperErr } from './deps.ts'
-import { assert, assertEquals } from './dev_deps.ts'
+import { assert, assertEquals, assertObjectMatch } from './dev_deps.ts'
 
 import { mapSort, mongoErrToHyperErr, queryOptions, toBulkOperations } from './utils.ts'
-import { assertObjectMatch } from 'https://deno.land/std@0.190.0/testing/asserts.ts'
 
 Deno.test('utils', async (t) => {
   await t.step('toBulkOperations', async (t) => {
@@ -50,19 +49,24 @@ Deno.test('utils', async (t) => {
       assertEquals(res, { limit: 123 })
     })
 
+    await t.step('should default the limit to 25', () => {
+      const res = queryOptions({})
+      assertEquals(res, { limit: 25 })
+    })
+
     await t.step('should map fields to projection', () => {
       const res = queryOptions({ fields: ['_id', 'foo', 'bar'] })
-      assertEquals(res, { projection: { foo: 1, bar: 1, _id: 1 } })
+      assertObjectMatch(res, { projection: { foo: 1, bar: 1, _id: 1 } })
     })
 
     await t.step('should disclude _id in projection by default', () => {
       const res = queryOptions({ fields: ['foo', 'bar'] })
-      assertEquals(res, { projection: { foo: 1, bar: 1, _id: 0 } })
+      assertObjectMatch(res, { projection: { foo: 1, bar: 1, _id: 0 } })
     })
 
     await t.step('should map hyper sort to mongo sort', () => {
       const res = queryOptions({ sort: ['_id', 'bar'] })
-      assertEquals(res, { sort: { _id: 1, bar: 1 } })
+      assertObjectMatch(res, { sort: { _id: 1, bar: 1 } })
     })
   })
 
