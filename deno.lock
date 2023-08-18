@@ -302,8 +302,6 @@
     "https://cdn.skypack.dev/-/ramda@v0.28.0-vDL6KbwpPkq7DJAM324O/dist=es2019,mode=imports/optimized/ramda/es/zip.js": "a9d0dbfcc448f5d12a4dd996741474376421b0fac801ea5816cd532770674e89",
     "https://cdn.skypack.dev/-/ramda@v0.28.0-vDL6KbwpPkq7DJAM324O/dist=es2019,mode=imports/optimized/ramda/es/zipObj.js": "9f6b44228886fd55ef22807893681174f066b9c9672b4eaca643d3cfb393c5e9",
     "https://cdn.skypack.dev/-/ramda@v0.28.0-vDL6KbwpPkq7DJAM324O/dist=es2019,mode=imports/optimized/ramda/es/zipWith.js": "51d7e74be0dec2929186dd9b46802c836d5aa9b7a3f1e7b0f42bae3dac739345",
-    "https://cdn.skypack.dev/-/ramda@v0.28.0-vDL6KbwpPkq7DJAM324O/dist=es2019,mode=types/index.d.ts": "287f39a899354e331523ebe37f64fecf0d198de0a675b3aaf22b8e3715e7341e",
-    "https://cdn.skypack.dev/-/ramda@v0.28.0-vDL6KbwpPkq7DJAM324O/dist=es2019,mode=types/tools.d.ts": "284345cf548c2f52d0df1dc21d78570e7863c1fd5ad26e07ce1312d13e1c876b",
     "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=imports/optimized/common/_Set-835dc2da.js": "be74ed3afc88843f631afdfd2d6b8689b6049ead254e6bc53e094f3fb45838b1",
     "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=imports/optimized/common/_arity-67186ea9.js": "dd07d98af13cc6d84a8fc656ae901b590bbeebfcdff21a1eb9903f3d22a1dbc9",
     "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=imports/optimized/common/_arrayReduce-bb8e8101.js": "823cb5920f73ce0ff2d8d592c22a54bb7c5970e0088fa6828fe3352fd9d47aa1",
@@ -612,8 +610,6 @@
     "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=imports/optimized/ramda/es/zip.js": "0fede21d26939c1de402302b176dab3214b9e2da7146781ddb2f5072040439a6",
     "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=imports/optimized/ramda/es/zipObj.js": "5519636187e3d6a9fd6154bfcb7d4350ed5352c0b037f337538e83d40b9b7fb8",
     "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=imports/optimized/ramda/es/zipWith.js": "58cad9194863ff9ea43fdb47f383d6a9788e3589b41ee39b6b98cbf3ec3eba66",
-    "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=types/index.d.ts": "744aee858b16429e302b084d5e0ec486529e2e75fda74b902888f1097df2c593",
-    "https://cdn.skypack.dev/-/ramda@v0.29.0-x4ajaWeQB4xPITM4Qvmo/dist=es2019,mode=types/tools.d.ts": "52f7627c7e79d132b51025d7183ae8a55ec0ae3b27255a248e719f02cf2f7780",
     "https://cdn.skypack.dev/crocks@0.12.4": "fc624b776247aa182539fed6fe1b21a578609d1c2c0e31830c4469f2bcd099cd",
     "https://cdn.skypack.dev/error/unknown:ts-toolbelt?from=ramda": "9adffad52875ea5b664461a736b488fcb08a5b4b971c8c598d63c0a499c3daff",
     "https://cdn.skypack.dev/ramda@0.28.0": "ac1e3c64a2a3491971bee55f88faeb0923023e903d3ad125f1bd8044b4cad03e",
@@ -667,7 +663,6 @@
     "https://deno.land/x/zod@v3.20.5/locales/en.ts": "ac7210faad6e67ec4f6dbe7062886f04db79ce91ae5ee6c9f64cbdf6221bc80e",
     "https://deno.land/x/zod@v3.20.5/mod.ts": "64e55237cb4410e17d968cd08975566059f27638ebb0b86048031b987ba251c4",
     "https://deno.land/x/zod@v3.20.5/types.ts": "6ddc4608e70d75f2e06f9cc14aa406df4d80f420c0eef64f2f02d429853c0c38",
-    "https://raw.githubusercontent.com/hyper63/hyper/hyper%40v4.1.0/packages/core/crocks.d.ts": "897848cba3a4a825e671b805633ae9ce012f9b611ac4f4f726e66123c8b6b10a",
     "https://raw.githubusercontent.com/hyper63/hyper/hyper%40v4.1.0/packages/core/deps.ts": "753f492d46f41072401d04b01b0bf7bf5e1117f95f76200cf44b1d54c62cd07e",
     "https://raw.githubusercontent.com/hyper63/hyper/hyper%40v4.1.0/packages/core/model.ts": "a3f5846884f02a46c378925d724db6fac3f1da427da81a83af8f4fbe46a58625",
     "https://raw.githubusercontent.com/hyper63/hyper/hyper%40v4.1.0/packages/core/utils/plugin-schema.ts": "2bd67ab56efd82194c9e2b9c7946c83106d437a54e9367132ad386c19fcddce2",
@@ -697,13 +692,13 @@
   },
   "npm": {
     "specifiers": {
-      "bson@5.3.0": "bson@5.3.0",
+      "bson@5.4.0": "bson@5.4.0",
       "cuid@3.0.0": "cuid@3.0.0",
-      "mongodb@5.6.0": "mongodb@5.6.0"
+      "mongodb@5.7.0": "mongodb@5.7.0"
     },
     "packages": {
-      "@types/node@20.3.2": {
-        "integrity": "sha512-vOBLVQeCQfIcF/2Y7eKFTqrMnizK5lRNQ7ykML/5RuwVXVWxYkgwS7xbt4B6fKCUPgbSL5FSsjHQpaGQP/dQmw==",
+      "@types/node@18.16.19": {
+        "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
         "dependencies": {}
       },
       "@types/webidl-conversions@7.0.0": {
@@ -713,12 +708,12 @@
       "@types/whatwg-url@8.2.2": {
         "integrity": "sha512-FtQu10RWgn3D9U4aazdwIE2yzphmTJREDqNdODHrbrZmmMqI0vMheC/6NE/J1Yveaj8H+ela+YwWTjq5PGmuhA==",
         "dependencies": {
-          "@types/node": "@types/node@20.3.2",
+          "@types/node": "@types/node@18.16.19",
           "@types/webidl-conversions": "@types/webidl-conversions@7.0.0"
         }
       },
-      "bson@5.3.0": {
-        "integrity": "sha512-ukmCZMneMlaC5ebPHXIkP8YJzNl5DC41N5MAIvKDqLggdao342t4McltoJBQfQya/nHBWAcSsYRqlXPoQkTJag==",
+      "bson@5.4.0": {
+        "integrity": "sha512-WRZ5SQI5GfUuKnPTNmAYPiKIof3ORXAF4IRU5UcgmivNIon01rWQlw5RUH954dpu8yGL8T59YShVddIPaU/gFA==",
         "dependencies": {}
       },
       "cuid@3.0.0": {
@@ -740,10 +735,10 @@
           "whatwg-url": "whatwg-url@11.0.0"
         }
       },
-      "mongodb@5.6.0": {
-        "integrity": "sha512-z8qVs9NfobHJm6uzK56XBZF8XwM9H294iRnB7wNjF0SnY93si5HPziIJn+qqvUR5QOff/4L0gCD6SShdR/GtVQ==",
+      "mongodb@5.7.0": {
+        "integrity": "sha512-zm82Bq33QbqtxDf58fLWBwTjARK3NSvKYjyz997KSy6hpat0prjeX/kxjbPVyZY60XYPDNETaHkHJI2UCzSLuw==",
         "dependencies": {
-          "bson": "bson@5.3.0",
+          "bson": "bson@5.4.0",
           "mongodb-connection-string-url": "mongodb-connection-string-url@2.6.0",
           "saslprep": "saslprep@1.0.3",
           "socks": "socks@2.7.1"
