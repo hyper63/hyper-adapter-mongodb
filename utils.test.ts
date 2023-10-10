@@ -54,6 +54,11 @@ Deno.test('utils', async (t) => {
       assertEquals(res, { limit: 25 })
     })
 
+    await t.step('should map the skip', () => {
+      const res = queryOptions({ skip: 25 })
+      assertObjectMatch(res, { skip: 25 })
+    })
+
     await t.step('should map fields to projection', () => {
       const res = queryOptions({ fields: ['_id', 'foo', 'bar'] })
       assertObjectMatch(res, { projection: { foo: 1, bar: 1, _id: 1 } })
