@@ -31,10 +31,12 @@ export const toBulkOperations = map(
 
 export const queryOptions = ({
   limit,
+  skip,
   fields,
   sort,
 }: {
   limit?: number | string
+  skip?: number | string
   fields?: string[]
   sort?: string[] | { [field: string]: 'ASC' | 'DESC' }[]
 }) => {
@@ -46,6 +48,7 @@ export const queryOptions = ({
    */
   const options: {
     limit?: number
+    skip?: number
     projection?: { [field: string]: 0 | 1 }
     sort?: { [field: string]: 1 | -1 }
   } = {
@@ -53,6 +56,7 @@ export const queryOptions = ({
      * See https://www.mongodb.com/docs/manual/reference/operator/aggregation/limit/
      */
     ...(limit ? { limit: Number(limit) } : { limit: 25 }),
+    ...(skip ? { skip: Number(skip) } : {}),
     ...(fields
       ? {
         projection: fields.reduce(
@@ -86,8 +90,8 @@ export const queryOptions = ({
  */
 export const mapSort = (
   sort: string[] | { [field: string]: 'ASC' | 'DESC' }[],
-) => {
-  if (!sort || !sort.length) return sort
+): { [field: string]: 1 | -1 } => {
+  if (!sort || !sort.length) return {}
 
   // deno-lint-ignore ban-ts-comment
   // @ts-ignore

@@ -320,6 +320,40 @@ async (
           ],
         })
 
+        const withSkip = await a.queryDocuments({
+          db: DB,
+          query: {
+            selector: { year: { $lte: '1978' } },
+            fields: ['_id', 'genre', 'year'],
+            sort: [{ title: 'DESC' }, { year: 'DESC' }],
+            skip: 2,
+          },
+        })
+
+        assertObjectMatch(withSkip as any, {
+          ok: true,
+          docs: [
+            { _id: '10-caddyshack', year: '1978', genre: ['comedy'] },
+          ],
+        })
+
+        const withLimit = await a.queryDocuments({
+          db: DB,
+          query: {
+            selector: { year: { $lte: '1978' } },
+            fields: ['_id', 'genre', 'year'],
+            sort: [{ title: 'DESC' }, { year: 'DESC' }],
+            limit: 1,
+          },
+        })
+
+        assertObjectMatch(withLimit as any, {
+          ok: true,
+          docs: [
+            { _id: '15-starwars', year: '1976', genre: ['sci-fi'] },
+          ],
+        })
+
         await a.removeDatabase(DB)
       },
     )
