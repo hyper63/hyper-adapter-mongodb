@@ -44,6 +44,7 @@ export interface MongoCollectionClient<T extends Document> {
   ): Promise<{
     matchedCount: number
     modifiedCount: number
+    upsertedCount: number
     upsertedId?: string
   }>
 

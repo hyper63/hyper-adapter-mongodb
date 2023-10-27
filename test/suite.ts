@@ -222,6 +222,29 @@ async (
       await a.removeDatabase(DB)
     })
 
+    await t.step('should noop if the document was not modified', async () => {
+      await a.createDatabase(DB)
+
+      await a.createDocument({
+        db: DB,
+        id: 'foobar',
+        doc: { foo: 'bar' },
+      })
+
+      // Same document shape
+      const noop = await a.updateDocument({
+        db: DB,
+        id: 'foobar',
+        doc: { foo: 'bar' },
+      })
+
+      assertObjectMatch(noop as any, { ok: true, id: 'foobar' })
+      const res = await a.retrieveDocument({ db: DB, id: 'foobar' })
+      assertObjectMatch(res as any, { _id: 'foobar', foo: 'bar' })
+
+      await a.removeDatabase(DB)
+    })
+
     await t.step(
       'should return a HyperErr(404) if the database does not exist',
       async () => {

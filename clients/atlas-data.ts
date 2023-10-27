@@ -147,6 +147,7 @@ export class Collection<T extends Document> implements MongoCollectionClient<T> 
     return this.api<{
       matchedCount: number
       modifiedCount: number
+      upsertedCount: number
       upsertedId?: string
     }>('replaceOne', {
       filter,

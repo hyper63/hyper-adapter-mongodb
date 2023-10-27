@@ -221,8 +221,8 @@ export function adapter({
       .chain(({ name: actualName }) =>
         $database(actualName)
           .replaceOne({ _id: id }, doc, { upsert: true })
-          .chain(({ matchedCount, modifiedCount }) =>
-            matchedCount + modifiedCount === 2 ? Async.Resolved({ ok: true, id }) : Async.Rejected(
+          .chain(({ matchedCount, upsertedCount }) =>
+            upsertedCount || matchedCount ? Async.Resolved({ ok: true, id }) : Async.Rejected(
               HyperErr({
                 status: 404,
                 msg: `Could not update document with _id ${id}`,
