@@ -86,6 +86,7 @@ class Collection<T extends Document> implements MongoCollectionClient<T> {
   ): Promise<{
     matchedCount: number
     modifiedCount: number
+    upsertedCount: number
     upsertedId?: string | undefined
   }> {
     const res = await this.collection.replaceOne(
@@ -97,6 +98,7 @@ class Collection<T extends Document> implements MongoCollectionClient<T> {
     return res as {
       matchedCount: number
       modifiedCount: number
+      upsertedCount: number
       upsertedId?: string | undefined
     }
   }
