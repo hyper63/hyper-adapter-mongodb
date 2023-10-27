@@ -2,36 +2,38 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "npm:bson@5.4.0": "npm:bson@5.4.0",
+      "npm:bson@6.2.0": "npm:bson@6.2.0",
       "npm:cuid@3.0.0": "npm:cuid@3.0.0",
-      "npm:mongodb@5.7.0": "npm:mongodb@5.7.0"
+      "npm:mongodb@6.2.0": "npm:mongodb@6.2.0"
     },
     "npm": {
+      "@mongodb-js/saslprep@1.1.0": {
+        "integrity": "sha512-Xfijy7HvfzzqiOAhAepF4SGN5e9leLkMvg/OPOF97XemjfVCYN/oWa75wnkc6mltMSTwY+XlbhWgUOJmkFspSw==",
+        "dependencies": {
+          "sparse-bitfield": "sparse-bitfield@3.0.3"
+        }
+      },
       "@types/node@18.16.19": {
         "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
         "dependencies": {}
       },
-      "@types/webidl-conversions@7.0.1": {
-        "integrity": "sha512-8hKOnOan+Uu+NgMaCouhg3cT9x5fFZ92Jwf+uDLXLu/MFRbXxlWwGeQY7KVHkeSft6RvY+tdxklUBuyY9eIEKg==",
+      "@types/webidl-conversions@7.0.2": {
+        "integrity": "sha512-uNv6b/uGRLlCVmelat2rA8bcVd3k/42mV2EmjhPh6JLkd35T5bgwR/t6xy7a9MWhd9sixIeBUzhBenvk3NO+DQ==",
         "dependencies": {}
       },
       "@types/whatwg-url@8.2.2": {
         "integrity": "sha512-FtQu10RWgn3D9U4aazdwIE2yzphmTJREDqNdODHrbrZmmMqI0vMheC/6NE/J1Yveaj8H+ela+YwWTjq5PGmuhA==",
         "dependencies": {
           "@types/node": "@types/node@18.16.19",
-          "@types/webidl-conversions": "@types/webidl-conversions@7.0.1"
+          "@types/webidl-conversions": "@types/webidl-conversions@7.0.2"
         }
       },
-      "bson@5.4.0": {
-        "integrity": "sha512-WRZ5SQI5GfUuKnPTNmAYPiKIof3ORXAF4IRU5UcgmivNIon01rWQlw5RUH954dpu8yGL8T59YShVddIPaU/gFA==",
+      "bson@6.2.0": {
+        "integrity": "sha512-ID1cI+7bazPDyL9wYy9GaQ8gEEohWvcUl/Yf0dIdutJxnmInEEyCsb4awy/OiBfall7zBA179Pahi3vCdFze3Q==",
         "dependencies": {}
       },
       "cuid@3.0.0": {
         "integrity": "sha512-WZYYkHdIDnaxdeP8Misq3Lah5vFjJwGuItJuV+tvMafosMzw0nF297T7mrm8IOWiPJkV6gc7sa8pzx27+w25Zg==",
-        "dependencies": {}
-      },
-      "ip@2.0.0": {
-        "integrity": "sha512-WKa+XuLG1A1R0UWhl2+1XQSi+fZWMsYKffMZTTYsiZaUD8k2yDAj5atimTUD2TZkyCkNEeYE5NhFZmupOGtjYQ==",
         "dependencies": {}
       },
       "memory-pager@1.5.0": {
@@ -45,35 +47,17 @@
           "whatwg-url": "whatwg-url@11.0.0"
         }
       },
-      "mongodb@5.7.0": {
-        "integrity": "sha512-zm82Bq33QbqtxDf58fLWBwTjARK3NSvKYjyz997KSy6hpat0prjeX/kxjbPVyZY60XYPDNETaHkHJI2UCzSLuw==",
+      "mongodb@6.2.0": {
+        "integrity": "sha512-d7OSuGjGWDZ5usZPqfvb36laQ9CPhnWkAGHT61x5P95p/8nMVeH8asloMwW6GcYFeB0Vj4CB/1wOTDG2RA9BFA==",
         "dependencies": {
-          "bson": "bson@5.4.0",
-          "mongodb-connection-string-url": "mongodb-connection-string-url@2.6.0",
-          "saslprep": "saslprep@1.0.3",
-          "socks": "socks@2.7.1"
+          "@mongodb-js/saslprep": "@mongodb-js/saslprep@1.1.0",
+          "bson": "bson@6.2.0",
+          "mongodb-connection-string-url": "mongodb-connection-string-url@2.6.0"
         }
       },
       "punycode@2.3.0": {
         "integrity": "sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==",
         "dependencies": {}
-      },
-      "saslprep@1.0.3": {
-        "integrity": "sha512-/MY/PEMbk2SuY5sScONwhUDsV2p77Znkb/q3nSVstq/yQzYJOH/Azh29p9oJLsl3LnQwSvZDKagDGBsBwSooag==",
-        "dependencies": {
-          "sparse-bitfield": "sparse-bitfield@3.0.3"
-        }
-      },
-      "smart-buffer@4.2.0": {
-        "integrity": "sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==",
-        "dependencies": {}
-      },
-      "socks@2.7.1": {
-        "integrity": "sha512-7maUZy1N7uo6+WVEX6psASxtNlKaNVMlGQKkG/63nEDdLOWNbiUMoLK7X4uYoLhQstau72mLgfEWcXcwsaHbYQ==",
-        "dependencies": {
-          "ip": "ip@2.0.0",
-          "smart-buffer": "smart-buffer@4.2.0"
-        }
       },
       "sparse-bitfield@3.0.3": {
         "integrity": "sha512-kvzhi7vqKTfkh0PZU+2D2PIllw2ymqJKujUcyPMd9Y75Nv4nPbGJZXNhxsgdQab2BmlDct1YnfQCguEvHr7VsQ==",
