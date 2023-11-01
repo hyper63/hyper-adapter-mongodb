@@ -9,7 +9,7 @@ tasks:
       docker run -it -p 27017:27017 -v /workspace/data:/data/db hyper-mongodb
 
   - name: Setup Git Hooks
-    init: git config core.hooksPath .hooks
+    init: deno task prepare
     command: |
       export MONGO_URL=mongodb://127.0.0.1:27017
       deno task test
