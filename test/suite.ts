@@ -428,6 +428,53 @@ async (
       },
     )
 
+    /**
+     * Test to ensure the issue described in https://github.com/denoland/deno/issues/19831
+     * is fixed in newest versions of deno
+     */
+    await t.step('can handle mulitple concurrent operations', async () => {
+      await a.createDatabase(DB)
+
+      await a.createDocument({
+        db: DB,
+        id: '10-caddyshack',
+        doc: { title: 'Caddyshack', year: '1978', genre: ['comedy'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '12-ghostbusters',
+        doc: { title: 'Ghostbusters', year: '1980', genre: ['comedy'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '15-starwars',
+        doc: { title: 'Star Wars', year: '1976', genre: ['sci-fi'] },
+      })
+
+      await a.createDocument({
+        db: DB,
+        id: '17-jaws',
+        doc: { title: 'Jaws', year: '1977', genre: ['drama'] },
+      })
+
+      await Promise.all(
+        Array(10).fill('').map(() =>
+          a.queryDocuments({
+            db: DB,
+            query: {
+              selector: { year: { $lte: '1978' } },
+              fields: ['_id', 'genre', 'year'],
+              sort: [{ title: 'DESC' }, { year: 'DESC' }],
+            },
+          }).then((res) => assertObjectMatch(res as any, { ok: true }))
+        ),
+      )
+
+      await a.removeDatabase(DB)
+    })
+
     await t.step(
       'should return a HyperErr(404) if the database does not exist',
       async () => {

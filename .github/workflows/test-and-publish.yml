@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         deno-version: [1.x]
-        mongodb-version: [6]
+        mongodb-version: [7]
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
@@ -52,7 +52,7 @@ jobs:
 
       # Start a Mongo Instance in the local CI runner environment
       - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.9.0
+        uses: supercharge/mongodb-github-action@1.10.0
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
 
@@ -101,4 +101,4 @@ jobs:
       - name: 🦕 Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: 1.x
