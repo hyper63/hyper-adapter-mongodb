@@ -2,7 +2,7 @@
  * Shim hand-rolled crocks types
  */
 // @deno-types="./crocks.d.ts"
-export { default as crocks } from 'https://cdn.skypack.dev/crocks@0.12.4'
+export { default as crocks } from 'npm:crocks@0.12.4'
 // @deno-types="npm:@types/ramda@^0.29.9"
 export * as R from 'npm:ramda@0.29.1'
 

@@ -406,8 +406,6 @@
     }
   },
   "remote": {
-    "https://cdn.skypack.dev/-/crocks@v0.12.4-Mje8nEhNx2rmIpwz3ROp/dist=es2019,mode=imports/optimized/crocks.js": "93d587d18dc5f124f30e5b38de37a6471eb65309c94ef2ffc7a36dc40ab394da",
-    "https://cdn.skypack.dev/crocks@0.12.4": "fc624b776247aa182539fed6fe1b21a578609d1c2c0e31830c4469f2bcd099cd",
     "https://deno.land/std@0.207.0/assert/assert.ts": "9a97dad6d98c238938e7540736b826440ad8c1c1e54430ca4c4e623e585607ee",
     "https://deno.land/std@0.207.0/assert/assertion_error.ts": "4d0bde9b374dfbcbe8ac23f54f567b77024fb67dbb1906a852d67fe050d42f56",
     "https://deno.land/std@0.207.0/fs/_util.ts": "fbf57dcdc9f7bc8128d60301eece608246971a7836a3bb1e78da75314f08b978",
