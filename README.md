@@ -9,15 +9,21 @@
 
 ---
 
-## Table of Contents
+<!-- toc -->
 
 - [Background](#background)
 - [Getting Started](#getting-started)
+  - [MongoDB In-Memory](#mongodb-in-memory)
 - [Installation](#installation)
 - [Features](#features)
 - [Methods](#methods)
 - [Contributing](#contributing)
+- [Testing](#testing)
+  - [Integration Tests](#integration-tests)
+- [TODO](#todo)
 - [License](#license)
+
+<!-- tocstop -->
 
 ## Background
 
