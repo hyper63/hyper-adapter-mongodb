@@ -3,14 +3,9 @@ import mongo from './mod.ts'
 import { suite } from './test/suite.ts'
 
 Deno.test({
-  name: 'Mongo Adapter Test Suite - NativeClient',
+  name: 'Mongo Adapter Test Suite - In-Memory',
   fn: async (t) => {
-    const url = Deno.env.get('MONGO_URL')
-    if (!url) {
-      throw new Error('MongoDB connection string is required at MONGO_URL')
-    }
-
-    const { client } = await mongo({ url }).load()
+    const { client } = await mongo({ dir: '__hyper__', dirVersion: '7.0.4' }).load()
     await suite(t)(client, { shouldBaseLine: true })
   },
   /**
