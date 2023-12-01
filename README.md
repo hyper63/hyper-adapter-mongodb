@@ -49,11 +49,43 @@ export default {
 create `mod.js`
 
 ```js
-import core from 'https://raw.githubusercontent.com/hyper63/hyper/hyper%40v4.1.0/packages/core/mod.ts'
+import core from 'https://raw.githubusercontent.com/hyper63/hyper/hyper%40v4.3.2/packages/core/mod.ts'
 import config from './hyper.config.js'
 
 core(config)
 ```
+
+### MongoDB In-Memory
+
+This adapter supports dynamically starting a local MongoDB server, running in memory. This is a
+great option for running a hyper Server locally, without needing to also spin up MongoDB locally
+(this what [hyper-nano](https://github.com/hyper63/hyper/tree/main/images/nano) is doing underneath
+the hood).
+
+To start a local MongoDB server, simply pass the `dir` option to the adapter. You can also specify
+`dirVersion` to specify the version of MongoDB to spin up locally.
+
+```js
+import { default as mongo } from 'https://raw.githubusercontent.com/hyper63/hyper-adapter-mongodb/{TAG}/mod.ts'
+
+export default {
+  app: express,
+  adapter: [
+    {
+      port: 'data',
+      plugins: [mongo({ dir: '__hyper__', dirVersion: '7.0.4' })],
+    },
+  ],
+}
+```
+
+The adapter will dynamically download the corresponding MongoDB binary, start it, then generate a
+connection string that the adapter will use to connect to it.
+
+> The MongoDB binary is downloaded and cached in `dir`, if it does not already exist. This may take
+> some time the first startup, but then is fast after caching. MongoDB data is stored in
+> `{dir}/data`. The binary plus the internal MongoDB data can typically require a non-trivial amount
+> of disk, around 500MB.
 
 ## Installation
 
