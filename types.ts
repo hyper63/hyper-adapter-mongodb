@@ -1,11 +1,16 @@
 export type AdapterConfig = {
-  url: string
+  url?: string
   options?: {
     atlas?: {
       dataSource: string
       auth: EmailPasswordAuthOptions | ApiKeyAuthOptions | CustomJwtAuthOptions
     }
   }
+  /**
+   * config when wanting to use an in-memory Mongo instance
+   */
+  dir?: string
+  dirVersion?: string
 }
 
 // deno-lint-ignore no-explicit-any

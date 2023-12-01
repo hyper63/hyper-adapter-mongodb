@@ -3,6 +3,20 @@ import { crocks, HyperErr, isHyperErr, R } from './deps.ts'
 const { map, omit, ifElse, evolve, applyTo, propOr, always } = R
 const { Async } = crocks
 
+export async function mkdir(dir: string) {
+  try {
+    return await Deno.mkdir(dir, { recursive: true })
+  } catch (err) {
+    if (err instanceof Deno.errors.AlreadyExists) {
+      // already exists so return
+      return true
+    } else {
+      // unexpected error, maybe permissions, pass it along
+      throw err
+    }
+  }
+}
+
 export const handleHyperErr = ifElse(
   isHyperErr,
   Async.Resolved,
