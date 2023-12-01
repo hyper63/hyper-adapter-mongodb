@@ -1,3 +1,4 @@
+import { join, MongoMemoryServer } from './deps.ts'
 import type { AdapterConfig } from './types.ts'
 import PORT_NAME from './port_name.ts'
 
@@ -5,6 +6,7 @@ import { AtlasDataClient } from './clients/atlas-data.ts'
 import { NativeClient } from './clients/native.ts'
 import type { MongoInstanceClient } from './clients/types.ts'
 
+import { mkdir } from './utils.ts'
 import { adapter } from './adapter.ts'
 import { MetaDb } from './meta.ts'
 
@@ -15,11 +17,31 @@ export default (config: AdapterConfig) => ({
   id: 'mongodb',
   port: PORT_NAME,
   load: async () => {
-    const url = new URL(config.url)
+    let url: URL
+    /**
+     * Dynamically create an in memory database
+     */
+    if (config.dir) {
+      const mongoMsDir = join(config.dir, 'mongoms')
+      await mkdir(join(mongoMsDir, 'data'))
+      /**
+       * See https://github.com/nodkz/mongodb-memory-server#available-options-for-mongomemoryserver
+       * for available options.
+       *
+       * Other options may
+       */
+      url = await MongoMemoryServer.create({
+        instance: { dbPath: join(mongoMsDir, 'data'), storageEngine: 'wiredTiger' },
+        binary: { downloadDir: mongoMsDir, version: config.dirVersion },
+      }).then((mongod) => new URL(mongod.getUri()))
+      console.log(`In-Memory MongoDB: ${url.toString()}`)
+    } else {
+      url = new URL(config.url as string)
+    }
     let client: NativeClient | AtlasDataClient
 
     if (isNative(url)) {
-      client = new NativeClient({ url: config.url })
+      client = new NativeClient({ url: url.toString() })
       await client.connect()
     } else if (isAtlas(url)) {
       if (!config.options?.atlas) {
@@ -29,7 +51,7 @@ export default (config: AdapterConfig) => ({
       }
       client = new AtlasDataClient({
         ...config.options.atlas,
-        endpoint: config.url,
+        endpoint: url.toString(),
         fetch,
       })
     } else {

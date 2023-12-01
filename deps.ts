@@ -9,6 +9,9 @@ export * as R from 'npm:ramda@0.29.1'
 export { EJSON } from 'npm:bson@6.2.0'
 export { type Collection, MongoClient } from 'npm:mongodb@6.3.0'
 export { default as cuid } from 'npm:cuid@3.0.0'
+export { MongoMemoryServer } from 'npm:mongodb-memory-server-core@9.1.1'
+
+export { join } from 'https://deno.land/std@0.208.0/path/mod.ts'
 
 import {
   HyperErr,
