@@ -34,7 +34,6 @@ export default (config: AdapterConfig) => ({
         instance: { dbPath: join(mongoMsDir, 'data'), storageEngine: 'wiredTiger' },
         binary: { downloadDir: mongoMsDir, version: config.dirVersion },
       }).then((mongod) => new URL(mongod.getUri()))
-      console.log(`In-Memory MongoDB: ${url.toString()}`)
     } else {
       url = new URL(config.url as string)
     }
