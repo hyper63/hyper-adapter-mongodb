@@ -3,7 +3,7 @@
     "prepare": "deno run -A --no-lock npm:husky@^8 install",
     "staged": "deno run -A --no-lock npm:lint-staged@^15",
     "cache": "deno cache --lock=deno.lock --lock-write deps.ts dev_deps.ts",
-    "test": "deno lint && deno fmt --check && deno test -A --unstable",
+    "test": "deno lint && deno fmt --check && deno test -A --no-lock --unstable --ignore='*.integration.test.ts'",
     "test:integration-native": "deno test -A --unstable adapter.native.integration.test.ts",
     "test:suite": "deno test --allow-net --allow-env --no-check --no-lock --import-map=https://raw.githubusercontent.com/hyper63/hyper/hyper-test%40v2.1.4/packages/test/import_map.json https://raw.githubusercontent.com/hyper63/hyper/hyper-test%40v2.1.4/packages/test/mod.js",
     "test:harness": "deno run --unstable --no-check --no-lock -A ./test/hyper.ts"
@@ -13,8 +13,5 @@
     "lineWidth": 100,
     "singleQuote": true,
     "semiColons": false
-  },
-  "test": {
-    "exclude": ["*.integration.test.ts"]
   }
 }
